@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# Temporary and local state
+temp/
+lsdj.sav
+
+# ROMs and emulator state
+lsdj_rom/*.gb
+lsdj_rom/*.ram
+lsdj_rom/*.sav
+lsdj_rom/*.backup
+lsdj_rom/lsdj9_4_2.gb
+lsdj_rom/lsdj9_4_2.gb.ram
+lsdj_rom/lsdj9_4_2.sav
+lsdj_rom/lsdj9_4_2.sav.backup

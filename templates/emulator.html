@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSDj Emulator Container</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            overflow: hidden;
+        }
+        #game {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="game"></div>
+
+    <script type="text/javascript">
+        // EmulatorJS Configurations
+        window.EJS_player = '#game';
+        window.EJS_core = 'gb';
+        window.EJS_gameUrl = '/download/lsdj.gb';
+        window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+        
+        // Disable startup ads/promotions if any
+        window.EJS_startOnLoaded = false;
+
+        // Dynamic SRAM Save Injection
+        let injected = false;
+        function attemptInjection() {
+            if (injected) return;
+            const emu = window.EJS_emulator;
+            if (emu && emu.gameManager && emu.gameManager.FS) {
+                console.log("gameManager ready! Fetching save file...");
+                fetch('/download/lsdj.sav?t=' + Date.now())
+                    .then(res => res.arrayBuffer())
+                    .then(buffer => {
+                        const FS = emu.gameManager.FS;
+                        const path = emu.gameManager.getSaveFilePath();
+                        console.log("Save path detected:", path);
+                        
+                        const paths = path.split("/");
+                        let cp = "";
+                        for (let i = 0; i < paths.length - 1; i++) {
+                            if (paths[i] === "") continue;
+                            cp += "/" + paths[i];
+                            if (!FS.analyzePath(cp).exists) FS.mkdir(cp);
+                        }
+                        if (FS.analyzePath(path).exists) FS.unlink(path);
+                        FS.writeFile(path, new Uint8Array(buffer));
+                        emu.gameManager.loadSaveFiles();
+                        console.log("Save file injected successfully at:", path);
+                        injected = true;
+                        
+                        // Notify parent page if available
+                        if (window.parent && typeof window.parent.showToast === 'function') {
+                            window.parent.showToast('MIDI sequence loaded into LSDj!');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching/injecting save:', err);
+                    });
+            } else {
+                console.log("gameManager not ready yet, retrying in 200ms...");
+                setTimeout(attemptInjection, 200);
+            }
+        }
+
+        window.EJS_ready = () => {
+            attemptInjection();
+        };
+
+        window.EJS_onGameStart = () => {
+            attemptInjection();
+        };
+    </script>
+    <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSDj MIDI Studio</title>
+    <link rel="icon" type="image/png" href="https://img.icons8.com/nolan/64/gameboy.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Slabo+27px&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-color: #000000;
+            --panel-bg: rgba(12, 12, 12, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-cyan: #ffffff;
+            --accent-purple: #888888;
+            --accent-pink: #cccccc;
+            --accent-green: #ffffff;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.82)), url('/static/images/CampSite.jpg');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 2rem;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-top: 1rem;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        header img.logo {
+            max-height: 110px;
+            width: auto;
+            display: block;
+            margin: 0 auto 0.5rem auto;
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.12));
+        }
+
+        header p {
+            font-family: 'Slabo 27px', serif;
+            color: var(--text-main);
+            font-size: 1.35rem;
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1.20fr;
+            gap: 2.5rem;
+            max-width: 1250px;
+            width: 100%;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2.2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .panel-title {
+            font-family: 'Slabo 27px', serif;
+            font-size: 1.55rem;
+            font-weight: 400;
+            margin-bottom: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.75rem;
+        }
+
+        .panel-title span.badge {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Upload Area */
+        .upload-zone {
+            border: 1px dashed rgba(255, 255, 255, 0.25);
+            border-radius: 2px;
+            padding: 3.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2.2rem;
+            color: #cccccc;
+            margin-bottom: 0.25rem;
+            opacity: 0.8;
+        }
+
+        .upload-zone h3 {
+            font-family: 'Slabo 27px', serif;
+            font-size: 1.35rem;
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .upload-zone p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Status / Info Display */
+        .status-container {
+            margin-top: 1.5rem;
+            display: none;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .info-card {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            padding: 1.25rem;
+        }
+
+        .info-card h3 {
+            font-family: 'Slabo 27px', serif;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        /* Action Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.95rem 1.5rem;
+            border-radius: 2px;
+            border: 1px solid transparent;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+
+        /* Gameboy Emulator Container */
+        .emulator-container {
+            width: 100%;
+            aspect-ratio: 10 / 9;
+            background: #000000;
+            border-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+        }
+
+        .emulator-placeholder {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .emulator-placeholder img {
+            width: 80px;
+            opacity: 0.2;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        #game {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Controls Panel */
+        .controls-card {
+            margin-top: 1.5rem;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            padding: 1.25rem;
+        }
+
+        .controls-card h4 {
+            font-family: 'Slabo 27px', serif;
+            font-size: 1.15rem;
+            font-weight: 400;
+            margin-bottom: 0.75rem;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .control-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 0.4rem;
+        }
+
+        .control-key {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+            padding: 1px 6px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        /* Loader & Progress Spinners */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #ffffff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.25; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #000000;
+            border: 1px solid #ffffff;
+            color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: 2px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="https://inhalants.ca" target="_blank">
+            <img class="logo" src="/static/images/Logo.png" alt="INHALANTS">
+        </a>
+        <img src="/static/images/LeftUnderline.png" style="max-width: 250px; opacity: 0.9; margin: 0.2rem auto 0.8rem auto; display: block;">
+        <p>MIDI STUDIO</p>
+    </header>
+
+    <div class="container">
+        <!-- Left Panel: Uploader & Meta Info -->
+        <div class="panel">
+            <h2 class="panel-title">1. Import & Convert <span class="badge">MIDI</span></h2>
+            
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+                <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                <h3>Drag & Drop MIDI file</h3>
+                <p>or click to browse your files</p>
+                <input type="file" id="file-input" accept=".mid,.midi">
+            </div>
+
+            <div style="text-align: center; margin-top: 0.8rem;" id="reset-container">
+                <button class="btn btn-secondary" id="btn-reset-default" style="padding: 0.5rem 1rem; font-size: 0.8rem; width: auto; display: inline-flex;">
+                    Reset to Default MIDI
+                </button>
+            </div>
+
+            <!-- Loader -->
+            <div id="loader" style="display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 2rem;">
+                <div class="spinner"></div>
+                <p style="color: var(--text-main); font-weight: 500;">Converting MIDI file...</p>
+            </div>
+
+            <!-- Meta info card (visible after upload) -->
+            <div class="status-container" id="status-container">
+                <div class="info-card">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">Song Metadata</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">File Name</span>
+                            <span class="info-value" id="meta-filename">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">LSDJ Project</span>
+                            <span class="info-value" id="meta-projname">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Original BPM</span>
+                            <span class="info-value" id="meta-bpm">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status</span>
+                            <span class="info-value" style="color: #ffffff; font-weight: 700;">SUCCESS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">Channel Mapping</h3>
+                    <ul id="mapping-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.95rem;">
+                        <!-- Mappings injected dynamically -->
+                    </ul>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="btn-load-emu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 4px;"><path d="M8 5v14l11-7z"/></svg> Load Song in Browser Emulator
+                    </button>
+                    <a class="btn btn-secondary" id="btn-download-lsdsng" href="/download/lsdsng">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download .lsdsng File
+                    </a>
+                    <a class="btn btn-secondary" id="btn-download-sav" href="/download/lsdj.sav">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download .sav ROM Save
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Gameboy Emulator -->
+        <div class="panel">
+            <h2 class="panel-title">2. Interactive LSDj Emulator <span class="badge">Gambatte GBC</span></h2>
+            
+            <div class="emulator-container">
+                <div class="emulator-placeholder" id="emu-placeholder">
+                    <svg class="gameboy-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.25" viewBox="0 0 24 24" style="color: #888888; opacity: 0.5; margin-bottom: 0.5rem;">
+                        <rect x="5" y="2" width="14" height="20" rx="1" />
+                        <rect x="7" y="4" width="10" height="7" rx="0.5" />
+                        <path d="M10 15h4M12 13v4" stroke-linecap="round" />
+                        <circle cx="15.5" cy="15" r="0.75" fill="currentColor" />
+                        <circle cx="13.5" cy="16" r="0.75" fill="currentColor" />
+                        <line x1="9.5" y1="19.5" x2="11" y2="18.5" />
+                        <line x1="12.5" y1="19.5" x2="14" y2="18.5" />
+                    </svg>
+                    <h3>No Song Loaded</h3>
+                    <p style="font-size: 0.9rem; font-weight: 300;">Upload a MIDI file and click "Load Song in Browser Emulator" to run LSDj preloaded with your sequence.</p>
+                </div>
+                <div id="game" style="display: none; outline: none;" tabindex="0"></div>
+            </div>
+
+            <!-- Controls panel -->
+            <div class="controls-card">
+                <h4>Emulator Controls</h4>
+                <div class="controls-grid">
+                    <div class="control-row">
+                        <span>D-Pad</span>
+                        <span class="control-key">Arrow Keys</span>
+                    </div>
+                    <div class="control-row">
+                        <span>A Button</span>
+                        <span class="control-key">X</span>
+                    </div>
+                    <div class="control-row">
+                        <span>B Button</span>
+                        <span class="control-key">Z</span>
+                    </div>
+                    <div class="control-row">
+                        <span>START</span>
+                        <span class="control-key">Enter</span>
+                    </div>
+                    <div class="control-row">
+                        <span>SELECT</span>
+                        <span class="control-key">Shift</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Save SRAM</span>
+                        <span class="control-key">EJS Toolbar</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem; text-align: center;">
+                    💡 To copy/export your edits, hover over the bottom of the emulator, open the settings menu, and click **Export Save File**.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span style="font-size: 1.2rem;">✅</span>
+        <span id="toast-message">Conversion successful!</span>
+    </div>
+
+    <script>
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        const loader = document.getElementById('loader');
+        const statusContainer = document.getElementById('status-container');
+        const emuPlaceholder = document.getElementById('emu-placeholder');
+        const gameDiv = document.getElementById('game');
+        const btnLoadEmu = document.getElementById('btn-load-emu');
+        const btnResetDefault = document.getElementById('btn-reset-default');
+
+        // Clear IndexedDB saves function to prevent stale cache loading
+        async function clearEmulatorSaves() {
+            return new Promise((resolve) => {
+                const fallbackDelete = () => {
+                    const commonDbs = ['/retroarch', '/canvas/browserfs', 'EmulatorJS', 'retroarch', 'ejs-sav'];
+                    let count = 0;
+                    commonDbs.forEach(dbName => {
+                        try {
+                            const req = window.indexedDB.deleteDatabase(dbName);
+                            req.onsuccess = req.onerror = () => {
+                                count++;
+                                if (count === commonDbs.length) resolve();
+                            };
+                        } catch (err) {
+                            count++;
+                            if (count === commonDbs.length) resolve();
+                        }
+                    });
+                };
+
+                if (window.indexedDB && window.indexedDB.databases) {
+                    window.indexedDB.databases().then(dbs => {
+                        if (dbs.length === 0) {
+                            fallbackDelete();
+                        } else {
+                            let count = 0;
+                            dbs.forEach(db => {
+                                try {
+                                    const req = window.indexedDB.deleteDatabase(db.name);
+                                    req.onsuccess = req.onerror = () => {
+                                        count++;
+                                        if (count === dbs.length) resolve();
+                                    };
+                                } catch (e) {
+                                    count++;
+                                    if (count === dbs.length) resolve();
+                                }
+                            });
+                        }
+                    }).catch(err => {
+                        fallbackDelete();
+                    });
+                } else {
+                    fallbackDelete();
+                }
+            });
+        }
+
+        // Click Forwarding to ensure emulator grabs keyboard focus
+        const emuContainer = document.querySelector('.emulator-container');
+        emuContainer.addEventListener('click', () => {
+            const canvas = gameDiv.querySelector('canvas');
+            if (canvas) canvas.focus();
+            const iframe = gameDiv.querySelector('iframe');
+            if (iframe) iframe.focus();
+        });
+
+        // Drag and Drop Events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+            }, false);
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (fileInput.files.length) {
+                handleFileUpload(fileInput.files[0]);
+            }
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.style.display = 'flex';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
+        const defaultMeta = {{ default_meta|tojson|safe if default_meta else 'null' }};
+        let currentFileInfo = null;
+
+        function displayMetadata(data, filename) {
+            currentFileInfo = data;
+            
+            // Update metadata
+            document.getElementById('meta-filename').textContent = filename;
+            document.getElementById('meta-projname').textContent = data.project_name;
+            document.getElementById('meta-bpm').textContent = `${data.bpm} BPM`;
+
+            // Update mapping list
+            const list = document.getElementById('mapping-list');
+            list.innerHTML = '';
+            for (const [gb_channel, midi_ch] of Object.entries(data.mapping)) {
+                const li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.justifyContent = 'space-between';
+                li.style.borderBottom = '1px solid rgba(255, 255, 255, 0.03)';
+                li.style.paddingBottom = '0.3rem';
+                li.innerHTML = `
+                    <span style="font-weight: 500; color: #ffffff; text-transform: uppercase;">${gb_channel}</span>
+                    <span style="color: var(--text-muted);">MIDI Channel ${midi_ch + 1}</span>
+                `;
+                list.appendChild(li);
+            }
+
+            statusContainer.style.display = 'flex';
+            uploadZone.style.display = 'flex'; // Keep upload zone visible so they can replace it
+        }
+
+        // Initialize with default or cached metadata
+        const savedMetaStr = localStorage.getItem('midi_metadata');
+        if (savedMetaStr) {
+            try {
+                const savedMeta = JSON.parse(savedMetaStr);
+                displayMetadata(savedMeta, savedMeta.filename || 'Uploaded MIDI');
+            } catch (e) {
+                localStorage.removeItem('midi_metadata');
+                if (defaultMeta) {
+                    displayMetadata(defaultMeta, defaultMeta.filename || 'Trumpet Midi.MID');
+                }
+            }
+        } else if (defaultMeta) {
+            displayMetadata(defaultMeta, defaultMeta.filename || 'Trumpet Midi.MID');
+        }
+
+        function handleFileUpload(file) {
+            const formData = new FormData();
+            formData.append('midi', file);
+
+            uploadZone.style.display = 'none';
+            loader.style.display = 'flex';
+            statusContainer.style.display = 'none';
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                loader.style.display = 'none';
+                if (data.success) {
+                    const savedMeta = {
+                        project_name: data.project_name,
+                        bpm: data.bpm,
+                        mapping: data.mapping,
+                        filename: file.name
+                    };
+                    localStorage.setItem('midi_metadata', JSON.stringify(savedMeta));
+                    localStorage.setItem('autoplay_emulator', 'true');
+                    window.location.reload();
+                } else {
+                    uploadZone.style.display = 'flex';
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(err => {
+                loader.style.display = 'none';
+                uploadZone.style.display = 'flex';
+                alert('Connection error: ' + err);
+            });
+        }
+
+        // Reset default midi
+        btnResetDefault.addEventListener('click', () => {
+            fetch('/reset', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.removeItem('midi_metadata');
+                        localStorage.removeItem('autoplay_emulator');
+                        window.location.reload();
+                    } else {
+                        alert('Reset failed: ' + data.error);
+                    }
+                })
+                .catch(err => {
+                    alert('Connection error during reset: ' + err);
+                });
+        });
+
+        // Initialize EmulatorJS
+        async function loadEmulator() {
+            if (!currentFileInfo) return;
+
+            emuPlaceholder.style.display = 'none';
+            gameDiv.style.display = 'block';
+            gameDiv.focus();
+
+            // Clear any stale emulator databases so the fresh server save is loaded
+            await clearEmulatorSaves();
+
+            // Configure EmulatorJS globals
+            window.EJS_player = '#game';
+            window.EJS_core = 'gb';
+            window.EJS_gameUrl = '/download/lsdj.gb';
+            // Force reload save by appending timestamp to bypass browser caching
+            window.EJS_sramUrl = '/download/lsdj.sav?t=' + Date.now();
+            window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+
+            // Dynamic SRAM Injection on Game Start / Ready
+            let injected = false;
+            function attemptInjection() {
+                if (injected) return;
+                const emu = window.EJS_emulator;
+                if (emu && emu.gameManager && emu.gameManager.FS) {
+                    console.log("gameManager ready! Fetching save file...");
+                    fetch('/download/lsdj.sav?t=' + Date.now())
+                        .then(res => res.arrayBuffer())
+                        .then(buffer => {
+                            const FS = emu.gameManager.FS;
+                            const path = emu.gameManager.getSaveFilePath();
+                            console.log("Save path detected:", path);
+                            
+                            const paths = path.split("/");
+                            let cp = "";
+                            for (let i = 0; i < paths.length - 1; i++) {
+                                if (paths[i] === "") continue;
+                                cp += "/" + paths[i];
+                                if (!FS.analyzePath(cp).exists) FS.mkdir(cp);
+                            }
+                            if (FS.analyzePath(path).exists) FS.unlink(path);
+                            FS.writeFile(path, new Uint8Array(buffer));
+                            emu.gameManager.loadSaveFiles();
+                            console.log("Save file injected successfully at:", path);
+                            showToast('MIDI song loaded into LSDj!');
+                            injected = true;
+                        })
+                        .catch(err => {
+                            console.error('Error fetching/injecting save:', err);
+                        });
+                } else {
+                    console.log("gameManager not ready yet, retrying in 200ms...");
+                    setTimeout(attemptInjection, 200);
+                }
+            }
+
+            window.EJS_ready = () => {
+                console.log("Emulator ready event triggered.");
+                attemptInjection();
+            };
+
+            window.EJS_onGameStart = () => {
+                console.log("Game start event triggered.");
+                attemptInjection();
+            };
+            
+            // Start EmulatorJS loader
+            const loaderScript = document.createElement('script');
+            loaderScript.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+            document.head.appendChild(loaderScript);
+
+            showToast('LSDj emulator loaded!');
+            btnLoadEmu.disabled = true;
+            btnLoadEmu.textContent = '🎮 Emulator Active';
+        }
+
+        btnLoadEmu.addEventListener('click', loadEmulator);
+
+        // Check if emulator should autoplay on reload (after upload)
+        if (localStorage.getItem('autoplay_emulator') === 'true') {
+            localStorage.removeItem('autoplay_emulator');
+            setTimeout(loadEmulator, 500);
+        }
+    </script>
+</body>
+</html>
