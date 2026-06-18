@@ -387,6 +387,57 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Channel mapping selects */
+        .mapping-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mapping-row:last-child {
+            border-bottom: none;
+        }
+
+        .mapping-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffffff;
+            min-width: 48px;
+        }
+
+        .mapping-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .mapping-select {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.82rem;
+            padding: 0.4rem 0.6rem;
+            min-width: 180px;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .mapping-select:hover, .mapping-select:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .mapping-select option {
+            background: #111111;
+        }
+
         /* Toast notification */
         .toast {
             position: fixed;
@@ -437,7 +488,22 @@
             <!-- Loader -->
             <div id="loader" style="display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 2rem;">
                 <div class="spinner"></div>
-                <p style="color: var(--text-main); font-weight: 500;">Converting MIDI file...</p>
+                <p id="loader-message" style="color: var(--text-main); font-weight: 500;">Analysing MIDI file...</p>
+            </div>
+
+            <!-- Channel Mapping Configurator (visible after analyze) -->
+            <div id="mapping-configurator" style="display: none; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem;">
+                <div class="info-card">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">Channel Mapping</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Assign a MIDI channel to each Game Boy channel. Select "None" to leave a channel silent.</p>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;" id="mapping-rows"></div>
+                </div>
+                <div class="btn-group" style="margin-top: 0;">
+                    <button class="btn btn-primary" id="btn-convert">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="margin-right:4px;"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                        Convert to LSDj
+                    </button>
+                </div>
             </div>
 
             <!-- Meta info card (visible after upload) -->
@@ -551,11 +617,17 @@
         const uploadZone = document.getElementById('upload-zone');
         const fileInput = document.getElementById('file-input');
         const loader = document.getElementById('loader');
+        const loaderMessage = document.getElementById('loader-message');
         const statusContainer = document.getElementById('status-container');
+        const mappingConfigurator = document.getElementById('mapping-configurator');
+        const mappingRows = document.getElementById('mapping-rows');
+        const btnConvert = document.getElementById('btn-convert');
         const emuPlaceholder = document.getElementById('emu-placeholder');
         const gameDiv = document.getElementById('game');
         const btnLoadEmu = document.getElementById('btn-load-emu');
         const btnResetDefault = document.getElementById('btn-reset-default');
+
+        let pendingFile = null; // File object held between analyze and convert
 
         // Clear IndexedDB saves function to prevent stale cache loading
         async function clearEmulatorSaves() {
@@ -699,11 +771,115 @@
             displayMetadata(defaultMeta, defaultMeta.filename || 'Trumpet Midi.MID');
         }
 
+        const GB_CHANNEL_LABELS = {
+            pu1: { name: 'PU1', desc: 'Pulse 1 — melody / lead' },
+            pu2: { name: 'PU2', desc: 'Pulse 2 — melody / harmony' },
+            wav: { name: 'WAV', desc: 'Wave — bass / synth' },
+            noi: { name: 'NOI', desc: 'Noise — drums / percussion' },
+        };
+
+        function buildMappingUI(activeChannels, suggestedMapping) {
+            mappingRows.innerHTML = '';
+            const gbChannels = ['pu1', 'pu2', 'wav', 'noi'];
+            gbChannels.forEach(gbCh => {
+                const { name, desc } = GB_CHANNEL_LABELS[gbCh];
+
+                const row = document.createElement('div');
+                row.className = 'mapping-row';
+
+                const label = document.createElement('span');
+                label.className = 'mapping-label';
+                label.textContent = name;
+
+                const descEl = document.createElement('span');
+                descEl.className = 'mapping-desc';
+                descEl.textContent = desc;
+
+                const select = document.createElement('select');
+                select.className = 'mapping-select';
+                select.dataset.gbChannel = gbCh;
+
+                // None option
+                const noneOpt = document.createElement('option');
+                noneOpt.value = '';
+                noneOpt.textContent = '— None —';
+                select.appendChild(noneOpt);
+
+                // One option per active MIDI channel
+                activeChannels.forEach(ch => {
+                    const opt = document.createElement('option');
+                    opt.value = ch.channel;
+                    const drumTag = ch.is_drums ? ' (drums)' : '';
+                    opt.textContent = `MIDI Ch ${ch.channel + 1}${drumTag} — ${ch.note_count} notes`;
+                    select.appendChild(opt);
+                });
+
+                // Pre-select the suggested mapping
+                if (gbCh in suggestedMapping) {
+                    select.value = suggestedMapping[gbCh];
+                }
+
+                row.appendChild(label);
+                row.appendChild(descEl);
+                row.appendChild(select);
+                mappingRows.appendChild(row);
+            });
+        }
+
+        function getCurrentMapping() {
+            const mapping = {};
+            mappingRows.querySelectorAll('select[data-gb-channel]').forEach(sel => {
+                if (sel.value !== '') {
+                    mapping[sel.dataset.gbChannel] = sel.value;
+                }
+            });
+            return mapping;
+        }
+
         function handleFileUpload(file) {
+            pendingFile = file;
             const formData = new FormData();
             formData.append('midi', file);
 
             uploadZone.style.display = 'none';
+            loaderMessage.textContent = 'Analysing MIDI file...';
+            loader.style.display = 'flex';
+            statusContainer.style.display = 'none';
+            mappingConfigurator.style.display = 'none';
+
+            fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                loader.style.display = 'none';
+                if (data.success) {
+                    buildMappingUI(data.active_channels, data.suggested_mapping);
+                    mappingConfigurator.style.display = 'flex';
+                    uploadZone.style.display = 'flex';
+                } else {
+                    uploadZone.style.display = 'flex';
+                    alert('Error analysing file: ' + data.error);
+                }
+            })
+            .catch(err => {
+                loader.style.display = 'none';
+                uploadZone.style.display = 'flex';
+                alert('Connection error: ' + err);
+            });
+        }
+
+        function runConvert() {
+            if (!pendingFile) return;
+            const mapping = getCurrentMapping();
+            const formData = new FormData();
+            formData.append('midi', pendingFile);
+            formData.append('channel_mapping', JSON.stringify(mapping));
+
+            mappingConfigurator.style.display = 'none';
+            uploadZone.style.display = 'none';
+            loaderMessage.textContent = 'Converting MIDI file...';
             loader.style.display = 'flex';
             statusContainer.style.display = 'none';
 
@@ -719,22 +895,26 @@
                         project_name: data.project_name,
                         bpm: data.bpm,
                         mapping: data.mapping,
-                        filename: file.name
+                        filename: pendingFile.name
                     };
                     localStorage.setItem('midi_metadata', JSON.stringify(savedMeta));
                     localStorage.setItem('autoplay_emulator', 'true');
                     window.location.reload();
                 } else {
+                    mappingConfigurator.style.display = 'flex';
                     uploadZone.style.display = 'flex';
                     alert('Error: ' + data.error);
                 }
             })
             .catch(err => {
                 loader.style.display = 'none';
+                mappingConfigurator.style.display = 'flex';
                 uploadZone.style.display = 'flex';
                 alert('Connection error: ' + err);
             });
         }
+
+        btnConvert.addEventListener('click', runConvert);
 
         // Reset default midi
         btnResetDefault.addEventListener('click', () => {

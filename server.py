@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import argparse
 import shutil
 from flask import Flask, request, jsonify, render_template, send_file
@@ -7,7 +8,7 @@ from flask import Flask, request, jsonify, render_template, send_file
 # Add local path to import pylsdj and midi_to_lsdsng
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pylsdj
-from midi_to_lsdsng import convert_midi_to_lsdsng
+from midi_to_lsdsng import convert_midi_to_lsdsng, analyze_midi
 
 app = Flask(__name__, template_folder='templates')
 
@@ -62,15 +63,44 @@ def initialize_default_midi():
 def index():
     return render_template('index.html', default_meta=DEFAULT_META)
 
+@app.route('/analyze', methods=['POST'])
+def analyze_midi_route():
+    if 'midi' not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
+
+    file = request.files['midi']
+    if file.filename == '':
+        return jsonify({"success": False, "error": "No file selected"}), 400
+
+    filename_lower = file.filename.lower()
+    if not (filename_lower.endswith('.mid') or filename_lower.endswith('.midi')):
+        return jsonify({"success": False, "error": "Only .mid and .midi files are supported"}), 400
+
+    safe_filename = "".join(c for c in file.filename if c.isalnum() or c in ('.', '_', '-'))
+    temp_path = os.path.join("temp", "analyze_" + safe_filename)
+    file.save(temp_path)
+
+    try:
+        result = analyze_midi(temp_path)
+        return jsonify({"success": True, **result})
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'midi' not in request.files:
         return jsonify({"success": False, "error": "No file uploaded"}), 400
-    
+
     file = request.files['midi']
     if file.filename == '':
         return jsonify({"success": False, "error": "No file selected"}), 400
-    
+
     filename_lower = file.filename.lower()
     if not (filename_lower.endswith('.mid') or filename_lower.endswith('.midi')):
         return jsonify({"success": False, "error": "Only .mid and .midi files are supported"}), 400
@@ -79,10 +109,20 @@ def upload_file():
     temp_path = os.path.join("temp", safe_filename)
     file.save(temp_path)
 
+    # Parse optional channel mapping from form data
+    channel_mapping = None
+    mapping_json = request.form.get('channel_mapping')
+    if mapping_json:
+        try:
+            raw = json.loads(mapping_json)
+            channel_mapping = {k: int(v) for k, v in raw.items() if v != '' and v is not None}
+        except (ValueError, TypeError):
+            pass
+
     try:
         # 1. Convert MIDI to trumpet.lsdsng
         output_lsdsng = "trumpet.lsdsng"
-        meta = convert_midi_to_lsdsng(temp_path, output_lsdsng, template_path="UNTOLDST.lsdsng")
+        meta = convert_midi_to_lsdsng(temp_path, output_lsdsng, template_path="UNTOLDST.lsdsng", channel_mapping=channel_mapping)
 
         # 2. Inject song into lsdj.sav
         baseline_sav = "lsdj.sav"

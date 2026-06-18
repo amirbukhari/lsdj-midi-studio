@@ -19,7 +19,42 @@ def midi_note_to_lsdj_note(midi_pitch):
     octave_str = f"{octave:X}"
     return f"{pitch_class.ljust(2, ' ')}{octave_str}"
 
-def convert_midi_to_lsdsng(midi_path, output_path, template_path="UNTOLDST.lsdsng"):
+def analyze_midi(midi_path):
+    """Return active MIDI channels with note counts and a suggested GB channel mapping."""
+    mid = mido.MidiFile(midi_path)
+    channels_note_count = {c: 0 for c in range(16)}
+    bpm = 120
+
+    for track in mid.tracks:
+        for msg in track:
+            if msg.type == 'set_tempo':
+                bpm = mido.tempo2bpm(msg.tempo)
+            elif msg.type == 'note_on' and msg.velocity > 0:
+                channels_note_count[msg.channel] += 1
+
+    active = [
+        {'channel': ch, 'note_count': count, 'is_drums': ch == 9}
+        for ch, count in channels_note_count.items() if count > 0
+    ]
+    active.sort(key=lambda x: x['note_count'], reverse=True)
+
+    # Build suggested mapping (same logic as auto-mapping in convert)
+    suggested = {}
+    drums = [c for c in active if c['is_drums']]
+    melodic = [c for c in active if not c['is_drums']]
+
+    if drums:
+        suggested['noi'] = drums[0]['channel']
+    for lch in ['pu1', 'pu2', 'wav']:
+        if melodic:
+            suggested[lch] = melodic.pop(0)['channel']
+    if 'noi' not in suggested and melodic:
+        suggested['noi'] = melodic.pop(0)['channel']
+
+    return {'bpm': round(bpm), 'active_channels': active, 'suggested_mapping': suggested}
+
+
+def convert_midi_to_lsdsng(midi_path, output_path, template_path="UNTOLDST.lsdsng", channel_mapping=None):
     print(f"Loading template: {template_path}")
     proj = pylsdj.load_lsdsng(template_path)
     song = proj.song
@@ -72,24 +107,28 @@ def convert_midi_to_lsdsng(midi_path, output_path, template_path="UNTOLDST.lsdsn
     song.tempo = int(min(max(round(bpm), 40), 250))
 
     # 3. Map MIDI channels to LSDJ channels
-    active_channels = [c for c, notes in channels_notes.items() if len(notes) > 0]
-    active_channels.sort(key=lambda c: len(channels_notes[c]), reverse=True)
-    print(f"Active MIDI channels sorted by note count: {active_channels}")
+    if channel_mapping is not None:
+        mapping = {k: v for k, v in channel_mapping.items() if v is not None}
+        print(f"Using provided channel mapping: {mapping}")
+    else:
+        active_channels = [c for c, notes in channels_notes.items() if len(notes) > 0]
+        active_channels.sort(key=lambda c: len(channels_notes[c]), reverse=True)
+        print(f"Active MIDI channels sorted by note count: {active_channels}")
 
-    mapping = {}
-    if 9 in active_channels:  # MIDI channel 10 (drums) -> noise channel
-        mapping['noi'] = 9
-        active_channels.remove(9)
+        mapping = {}
+        if 9 in active_channels:  # MIDI channel 10 (drums) -> noise channel
+            mapping['noi'] = 9
+            active_channels.remove(9)
 
-    lsdj_channels = ['pu1', 'pu2', 'wav']
-    for l_chan in lsdj_channels:
-        if active_channels:
-            mapping[l_chan] = active_channels.pop(0)
+        lsdj_channels = ['pu1', 'pu2', 'wav']
+        for l_chan in lsdj_channels:
+            if active_channels:
+                mapping[l_chan] = active_channels.pop(0)
 
-    if 'noi' not in mapping and active_channels:
-        mapping['noi'] = active_channels.pop(0)
+        if 'noi' not in mapping and active_channels:
+            mapping['noi'] = active_channels.pop(0)
 
-    print(f"Mapping MIDI channels to LSDJ channels: {mapping}")
+        print(f"Auto-mapped MIDI channels to LSDJ channels: {mapping}")
 
     # Set project name
     proj_name = os.path.basename(midi_path).split('.')[0].upper()[:8]
