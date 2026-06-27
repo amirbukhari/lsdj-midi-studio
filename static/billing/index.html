@@ -536,10 +536,11 @@ const VIEWS = {};
 VIEWS.dashboard = (v)=>{
   v.appendChild(el(`<div class="view">
     ${pageHead('Billing overview','Net revenue, recurring revenue health and accounts receivable — fiscal period June 2026.',
-      `<button class="btn ghost" data-act="toast" data-arg="Exporting board pack…">${svg(I.download,15)} Export</button>
+      `<div class="seg" id="lensSeg"><button class="on" data-act="lens" data-arg="revops">Revenue Ops</button><button data-act="lens" data-arg="finance">Finance (CFO)</button></div>
+       <button class="btn ghost" data-act="toast" data-arg="Exporting board pack…">${svg(I.download,15)} Export</button>
        <div class="seg"><button class="on">Month</button><button>Quarter</button><button>Year</button></div>`)}
 
-    <div class="grid kpis">
+    <div class="grid kpis" id="kpisRevops">
       ${kpi('Monthly Recurring Revenue','$418,350','vs last month',{trend:4.2,accent:true,spark:'1'})}
       ${kpi('Annual Run Rate','$5.02M','projected ARR',{trend:6.1,spark:'2'})}
       ${kpi('Net Revenue (MTD)','$329,400','collected this month',{trend:6.8,spark:'3'})}
@@ -548,6 +549,16 @@ VIEWS.dashboard = (v)=>{
       ${kpi('Gross Churn','1.8%','revenue churn',{trend:-0.4})}
       ${kpi('Outstanding A/R','$132,600','across 7 invoices',{trend:9.0})}
       ${kpi('Avg. Days to Pay','27.4','DSO',{trend:-3.1})}
+    </div>
+    <div class="grid kpis" id="kpisFinance" style="display:none">
+      ${kpi('EBITDA','$51,636','10.0% margin',{trend:20,accent:true})}
+      ${kpi('Gross Margin','82.0%','blended',{trend:0.3})}
+      ${kpi('Cash Position','$6.51M','4 accounts',{trend:3.4})}
+      ${kpi('Net Cash Flow (MTD)','+$268,480','collected − outflows',{trend:7})}
+      ${kpi('Deferred Revenue','$2.84M','6.8× monthly',{trend:5})}
+      ${kpi('Revenue vs Budget','+2.0%','$514k actual',{trend:2})}
+      ${kpi('Days to Close','3 / 5','on track',{})}
+      ${kpi('Outstanding A/R','$132,600','27.4 DSO',{trend:9})}
     </div>
 
     <div class="row" style="margin-bottom:16px">
@@ -871,6 +882,16 @@ VIEWS.revrec = (v)=>{
   </div>`));
   requestAnimationFrame(()=>drawWaterfall());
 };
+
+function setDashLens(which, btn){
+  const ro=document.getElementById('kpisRevops'), fin=document.getElementById('kpisFinance');
+  if(!ro||!fin) return;
+  const finance = which==='finance';
+  ro.style.display = finance?'none':'';
+  fin.style.display = finance?'':'none';
+  document.querySelectorAll('#lensSeg button').forEach(b=>b.classList.toggle('on', b===btn));
+  if(!finance) requestAnimationFrame(drawSparks); // re-draw sparklines when revops grid returns
+}
 
 function openRevSchedule(arg){
   const [id,acct,total,recog,deferred,method]=arg.split('|');
@@ -1491,6 +1512,7 @@ document.addEventListener('click',e=>{
   if(a==='invoice') return openInvoice(arg);
   if(a==='account') return openAccount(arg);
   if(a==='revsched') return openRevSchedule(arg);
+  if(a==='lens') return setDashLens(arg, t);
   if(a==='toast') return toast(arg);
 });
 const _lf=document.getElementById('loginForm');
