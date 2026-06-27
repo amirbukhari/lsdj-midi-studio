@@ -415,6 +415,7 @@ const NAV = [
     {id:'dunning', label:'Dunning & Collections', icon:'dunning', badge:'7'},
   ]},
   {group:'Finance & Controls', items:[
+    {id:'statements', label:'Financial Statements', icon:'ledger'},
     {id:'revrec', label:'Revenue Recognition', icon:'revrec'},
     {id:'cashflow', label:'Cash & Treasury', icon:'cash'},
     {id:'close', label:'Financial Close', icon:'close', badge:'5', muted:true},
@@ -926,6 +927,74 @@ VIEWS.reports = (v)=>{
 };
 
 /* ---------- Settings ---------- */
+/* ---------- Financial Statements ---------- */
+VIEWS.statements = (v)=>{
+  // [label, actual, budget, weight(0 line,1 subtotal,2 highlight)]
+  const pnl=[
+    ['Recurring revenue',418350,410000,0],
+    ['Usage revenue',71840,66000,0],
+    ['Professional services',24000,28000,0],
+    ['Total revenue',514190,504000,1],
+    ['Cost of revenue',-92554,-90000,0],
+    ['Gross profit',421636,414000,1],
+    ['Sales & marketing',-168000,-175000,0],
+    ['Research & development',-124000,-120000,0],
+    ['General & administrative',-78000,-76000,0],
+    ['Total operating expenses',-370000,-371000,1],
+    ['EBITDA',51636,43000,2],
+  ];
+  const money=n=>(n<0?'(':'')+'$'+Math.abs(n).toLocaleString()+(n<0?')':'');
+  const row=(r)=>{
+    const varc=r[1]-r[2], pct=r[2]?Math.round(varc/Math.abs(r[2])*100):0;
+    const cls=r[3]===2?'style="background:var(--surface-2)"':'';
+    const fw=r[3]?'font-weight:700':'';
+    const nm=r[3]?`<b style="${fw}">${r[0]}</b>`:r[0];
+    return `<tr ${cls}><td style="${fw}">${nm}</td>
+      <td class="num" style="${fw}">${money(r[1])}</td>
+      <td class="num mut">${money(r[2])}</td>
+      <td class="num" style="color:${varc>=0?'var(--good)':'var(--crit)'}">${varc>=0?'+':'−'}$${Math.abs(varc).toLocaleString()}</td>
+      <td class="num" style="color:${varc>=0?'var(--good)':'var(--crit)'}">${varc>=0?'+':''}${pct}%</td></tr>`;
+  };
+  const bs=[
+    ['Cash & equivalents',6510000,'asset'],
+    ['Accounts receivable',1284400,'asset'],
+    ['Contract assets (unbilled)',214000,'asset'],
+    ['Deferred revenue',-2840000,'liab'],
+    ['Tax payable',-44180,'liab'],
+  ];
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Financial statements — June 2026','Management-basis P&amp;L with budget-to-actual variance and a period-end balance-sheet extract. GAAP reconciliation available.',
+      `<button class="btn ghost" data-act="toast" data-arg="Exporting management accounts (XLSX)…">${svg(I.download,15)} Export</button>
+       <div class="seg"><button class="on">MTD</button><button>QTD</button><button>YTD</button></div>`)}
+    <div class="grid kpis">
+      ${kpi('Total revenue','$514,190','+2.0% vs budget',{trend:2.0,accent:true})}
+      ${kpi('Gross margin','82.0%','+0.3 pts vs budget',{trend:0.3})}
+      ${kpi('EBITDA','$51,636','10.0% margin',{trend:20})}
+      ${kpi('Operating expense ratio','72%','of revenue',{trend:-1})}
+    </div>
+    <div class="row">
+      <div class="card panel">
+        <div class="panel-head"><h3>Profit &amp; loss</h3><span class="sub">actual vs budget · MTD</span><div class="right"><span class="pill good">On plan</span></div></div>
+        <div class="table-wrap" style="border:none">
+          <table><thead><tr><th>Line item</th><th class="num">Actual</th><th class="num">Budget</th><th class="num">Variance</th><th class="num">%</th></tr></thead>
+          <tbody>${pnl.map(row).join('')}</tbody></table>
+        </div>
+      </div>
+      <div class="card panel">
+        <div class="panel-head"><h3>Balance sheet</h3><span class="sub">selected · period end</span></div>
+        <div class="table-wrap" style="border:none">
+          <table style="min-width:0"><tbody>${bs.map(b=>`<tr><td><div class="nm">${b[0]}</div><div class="mut">${b[2]==='asset'?'Asset':'Liability'}</div></td><td class="num" style="color:${b[1]>=0?'var(--text)':'var(--crit)'}">${money(b[1])}</td></tr>`).join('')}</tbody></table>
+        </div>
+        <div class="totals" style="margin-top:14px">
+          <div class="t"><span class="mut">Net working capital</span><span class="num">$1,124,220</span></div>
+          <div class="t grand"><span>Deferred rev coverage</span><span class="num">6.8×</span></div>
+        </div>
+        <div class="note info" style="margin-top:14px">${svg(I.ledger,15)}<div>Deferred revenue of <b>$2.84M</b> represents 6.8× monthly recognized revenue — strong forward visibility for the board.</div></div>
+      </div>
+    </div>
+  </div>`));
+};
+
 /* ---------- Cash & Treasury ---------- */
 VIEWS.cashflow = (v)=>{
   const fc=[ // expected collections forecast by week ($k)
