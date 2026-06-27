@@ -95,6 +95,14 @@ button{font-family:inherit;cursor:pointer}
 .search{margin-left:6px;flex:1;max-width:440px;position:relative}
 .search input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:22px;padding:9px 13px 9px 36px;font-size:13px;font-family:var(--sans);transition:border-color .15s,box-shadow .15s}
 .search input:focus{border-color:var(--ember);outline:none;box-shadow:0 0 0 3px var(--ember-glow)}
+.cmd-menu{position:absolute;top:42px;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--shadow);padding:6px;z-index:50;display:none;max-height:60vh;overflow-y:auto}
+.cmd-menu.open{display:block}
+.cmd-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--text-2);font-size:13px;cursor:pointer}
+.cmd-item:hover,.cmd-item.sel{background:var(--surface-2);color:var(--text)}
+.cmd-item .ic{width:16px;height:16px;opacity:.8;flex:none}
+.cmd-item .grp{margin-left:auto;font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px}
+.cmd-empty{padding:14px 10px;color:var(--text-3);font-size:12.5px;text-align:center}
 .search .si{position:absolute;left:12px;top:9px;opacity:.5}
 .topbar .spacer{flex:1}
 .pill-select{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:7px 13px;font-size:12px;color:var(--text-2);transition:border-color .15s}
@@ -334,7 +342,8 @@ th.num{text-align:right}
       <div class="crumbs">delonix / <b id="crumb">Dashboard</b></div>
       <div class="search">
         <svg class="si" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input placeholder="Search accounts, invoices, subscriptions…  ⌘K" />
+        <input id="cmdInput" placeholder="Jump to… accounts, invoices, close, controls  ⌘K" autocomplete="off" />
+        <div class="cmd-menu" id="cmdMenu"></div>
       </div>
       <div class="spacer"></div>
       <div class="pill-select ent" data-act="toast" data-arg="Switch entity / workspace"><span class="ent-dot"></span>Delonix Inc <b>North America</b><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
@@ -512,7 +521,21 @@ function route(id){
   v.innerHTML='';
   (VIEWS[id]||VIEWS.dashboard)(v);
   v.scrollTop=0; window.scrollTo(0,0);
+  closeCmd();
 }
+
+/* ---- command palette (functional global search) ---- */
+function cmdItems(){ return NAV.flatMap(g=>g.items.map(it=>({...it, group:g.group}))); }
+function buildCmd(q=''){
+  const menu=document.getElementById('cmdMenu'); if(!menu) return;
+  const ql=q.trim().toLowerCase();
+  const list=cmdItems().filter(it=>!ql || it.label.toLowerCase().includes(ql) || it.group.toLowerCase().includes(ql) || it.id.includes(ql));
+  menu.innerHTML = list.length
+    ? list.map((it,i)=>`<div class="cmd-item${i===0?' sel':''}" data-act="route" data-arg="${it.id}">${svg(I[it.icon],16)}<span>${it.label}</span><span class="grp">${it.group}</span></div>`).join('')
+    : `<div class="cmd-empty">No matches for “${q}”</div>`;
+  menu.classList.add('open');
+}
+function closeCmd(){ const m=document.getElementById('cmdMenu'); if(m) m.classList.remove('open'); }
 
 /* ---- small builders ---- */
 function pill(status,label){return `<span class="pill ${status}">${label}</span>`;}
@@ -1518,9 +1541,28 @@ document.addEventListener('click',e=>{
 const _lf=document.getElementById('loginForm');
 if(_lf) _lf.addEventListener('submit',e=>{ e.preventDefault(); enterApp(e); });
 
-/* ---- keyboard: ⌘K focuses search, Esc closes drawer ---- */
+/* ---- command palette wiring ---- */
+const _ci=document.getElementById('cmdInput');
+if(_ci){
+  _ci.addEventListener('focus',()=>buildCmd(_ci.value));
+  _ci.addEventListener('input',()=>buildCmd(_ci.value));
+  _ci.addEventListener('keydown',e=>{
+    const menu=document.getElementById('cmdMenu');
+    const items=[...menu.querySelectorAll('.cmd-item')];
+    let sel=menu.querySelector('.cmd-item.sel');
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();
+      let i=items.indexOf(sel); i=(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length;
+      items.forEach(x=>x.classList.remove('sel')); items[i]?.classList.add('sel');
+      items[i]?.scrollIntoView({block:'nearest'});
+    } else if(e.key==='Enter'){ e.preventDefault(); (sel||items[0])?.click(); _ci.blur(); }
+    else if(e.key==='Escape'){ closeCmd(); _ci.blur(); }
+  });
+}
+document.addEventListener('click',e=>{ if(!e.target.closest('.search')) closeCmd(); });
+
+/* ---- keyboard: ⌘K opens palette, Esc closes drawer ---- */
 document.addEventListener('keydown',e=>{
-  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.querySelector('.search input')?.focus();}
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault(); const ci=document.getElementById('cmdInput'); if(ci){ci.focus();ci.select();buildCmd('');}}
   if(e.key==='Escape')closeDrawer();
 });
 window.addEventListener('resize',()=>{ if(current==='dashboard'){drawRevChart();drawSparks();}
