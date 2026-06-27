@@ -686,7 +686,7 @@ VIEWS.subscriptions = (v)=>{
     </div>
     <div class="table-wrap">
       <table><thead><tr><th>Account</th><th>Plan</th><th>Pricing model</th><th class="num">Seats</th><th class="num">MRR</th><th>Renews</th><th>Status</th></tr></thead>
-      <tbody>${subs.map(s=>`<tr style="cursor:pointer" data-act="toast" data-arg="Subscription · ${s.acct}">
+      <tbody>${subs.map(s=>`<tr style="cursor:pointer" data-act="subdetail" data-arg="${s.acct}">
         <td class="nm">${s.acct}</td><td>${s.plan}</td>
         <td><span class="pill muted">${s.model}</span></td>
         <td class="num">${s.seats.toLocaleString()}</td><td class="num">${fmt(s.mrr)}</td>
@@ -843,7 +843,7 @@ VIEWS.payments = (v)=>{
     </div>
     <div class="table-wrap">
       <table><thead><tr><th>Payment</th><th>Account</th><th class="num">Amount</th><th>Method</th><th>Gateway</th><th>When</th><th>Status</th></tr></thead>
-      <tbody>${payments.map(p=>`<tr style="cursor:pointer" data-act="toast" data-arg="Payment ${p.id}"><td class="mono">${p.id}</td><td class="nm">${p.acct}</td><td class="num">${fmt(p.amt)}</td><td class="mono mut">${p.method}</td><td>${p.gw}</td><td class="mut">${p.when}</td><td>${pill(p.status,p.sl)}</td></tr>`).join('')}</tbody></table>
+      <tbody>${payments.map(p=>`<tr style="cursor:pointer" data-act="paydetail" data-arg="${p.id}"><td class="mono">${p.id}</td><td class="nm">${p.acct}</td><td class="num">${fmt(p.amt)}</td><td class="mono mut">${p.method}</td><td>${p.gw}</td><td class="mut">${p.when}</td><td>${pill(p.status,p.sl)}</td></tr>`).join('')}</tbody></table>
     </div>
   </div>`));
 };
@@ -936,6 +936,82 @@ function setDashLens(which, btn){
   fin.style.display = finance?'':'none';
   document.querySelectorAll('#lensSeg button').forEach(b=>b.classList.toggle('on', b===btn));
   if(!finance) requestAnimationFrame(drawSparks); // re-draw sparklines when revops grid returns
+}
+
+function openSubscription(acct){
+  const s=subs.find(x=>x.acct===acct)||subs[0];
+  const a=accounts.find(x=>x.name===acct);
+  const accInv=invoices.filter(x=>x.acct===acct);
+  const term=s.plan.includes('annual')?'Annual':'Monthly';
+  openDrawer(`
+    <div class="drawer-head">
+      <div class="logo-chip" style="background:${colorFor(acct)};width:40px;height:40px;font-size:14px">${initials(acct)}</div>
+      <div><div style="font-size:18px;font-weight:650">${acct}</div><div class="mut">${s.plan}</div></div>
+      <button class="x" data-act="close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div style="display:flex;gap:8px;margin-bottom:18px">${pill(s.status,s.sl)}<span class="pill muted">${s.model}</span><span class="pill muted">${term}</span></div>
+      <div class="grid kpis" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+        ${kpi('MRR',fmt(s.mrr),'recurring',{})}
+        ${kpi('Annual value',fmt(s.mrr*12),'ARR',{})}
+        ${kpi('Seats',s.seats.toLocaleString(),'licensed',{})}
+        ${kpi('Renews',s.renew,term.toLowerCase()+' term',{})}
+      </div>
+      <dl class="kv">
+        <dt>Pricing model</dt><dd>${s.model}</dd>
+        <dt>Rate</dt><dd>${fmt(Math.round(s.mrr/s.seats))} / seat / mo</dd>
+        <dt>Billing term</dt><dd>${term}, in advance</dd>
+        <dt>Payment terms</dt><dd>${a?a.terms:'Net 30'}</dd>
+        <dt>Owner</dt><dd>${a?a.owner:'—'}</dd>
+        <dt>Auto-renew</dt><dd>${s.sl==='Suspended'?'Off':'On'}</dd>
+      </dl>
+      <div class="sec-title">Billing schedule</div>
+      <div class="dot-step">
+        ${[['Booked','done'],['Current period','active'],['Renewal','' ]].map((x,k)=>`<div class="ds ${x[1]}"><div class="c">${x[1]==='done'?'✓':k+1}</div><small>${x[0]}</small></div>`).join('')}
+      </div>
+      <div class="sec-title">Invoices</div>
+      ${accInv.length?`<div class="table-wrap"><table style="min-width:0"><tbody>${accInv.map(i=>`<tr style="cursor:pointer" data-act="invoice" data-arg="${i.id}"><td class="mono">${i.id}</td><td class="num">${fmt(i.amt)}</td><td>${pill(i.status,i.slabel)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No invoices this period.</div>'}
+      <div style="display:flex;gap:8px;margin-top:22px">
+        <button class="btn primary" style="flex:1;justify-content:center" data-act="toast" data-arg="Opening change plan…">Change plan</button>
+        <button class="btn" data-act="toast" data-arg="Opening renewal quote…">Renew</button>
+      </div>
+    </div>`);
+}
+
+function openPayment(id){
+  const p=payments.find(x=>x.id===id)||payments[0];
+  const fee=Math.round(p.amt*0.0225);
+  const failed=p.status==='crit', pending=p.status==='ember';
+  const steps=failed?[['Created','done'],['Authorize','active'],['Capture',''],['Settle','']]
+    :pending?[['Created','done'],['Authorized','done'],['Capture','active'],['Settle','']]
+    :[['Created','done'],['Authorized','done'],['Captured','done'],['Settled','done']];
+  openDrawer(`
+    <div class="drawer-head">
+      <div><div class="mono mut">${p.id}</div><div style="font-size:18px;font-weight:650">${p.acct}</div></div>
+      <button class="x" data-act="close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div style="display:flex;gap:8px;margin-bottom:18px">${pill(p.status,p.sl)}<span class="pill muted">${p.gw}</span></div>
+      <dl class="kv">
+        <dt>Amount</dt><dd class="mono" style="font-size:16px;color:var(--ember-soft)">${fmt2(p.amt)}</dd>
+        <dt>Method</dt><dd class="mono">${p.method}</dd>
+        <dt>Gateway</dt><dd>${p.gw}</dd>
+        <dt>Processing fee</dt><dd class="mono">${failed?'—':fmt2(fee)+' (2.25%)'}</dd>
+        <dt>Net</dt><dd class="mono">${failed?'—':fmt2(p.amt-fee)}</dd>
+        <dt>Timestamp</dt><dd>${p.when}</dd>
+        <dt>Reference</dt><dd class="mono">ch_${p.id.slice(-5)}${p.id.slice(-2)}</dd>
+      </dl>
+      <div class="sec-title">Lifecycle</div>
+      <div class="dot-step">
+        ${steps.map((x,k)=>`<div class="ds ${x[1]}"><div class="c">${x[1]==='done'?'✓':k+1}</div><small>${x[0]}</small></div>`).join('')}
+      </div>
+      ${failed?`<div class="note warn" style="margin-top:16px">${svg(I.dunning,15)}<div><b>Declined</b> — issuer response: insufficient funds. Smart-retry scheduled; account routed to dunning.</div></div>`:''}
+      <div style="display:flex;gap:8px;margin-top:22px">
+        ${failed?`<button class="btn primary" style="flex:1;justify-content:center" data-act="toast" data-arg="Retrying payment…">Retry now</button>`
+          :`<button class="btn primary" style="flex:1;justify-content:center" data-act="toast" data-arg="Issuing refund…">Refund</button>`}
+        <button class="btn" data-act="toast" data-arg="Downloading receipt…">${svg(I.download,15)} Receipt</button>
+      </div>
+    </div>`);
 }
 
 function openRevSchedule(arg){
@@ -1723,6 +1799,8 @@ document.addEventListener('click',e=>{
   if(a==='invoice') return openInvoice(arg);
   if(a==='account') return openAccount(arg);
   if(a==='revsched') return openRevSchedule(arg);
+  if(a==='subdetail') return openSubscription(arg);
+  if(a==='paydetail') return openPayment(arg);
   if(a==='lens') return setDashLens(arg, t);
   if(a==='invfilter') return setInvFilter(arg, t);
   if(a==='acctfilter') return setAcctFilter(arg, t);
