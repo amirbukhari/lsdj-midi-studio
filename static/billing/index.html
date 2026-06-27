@@ -388,6 +388,7 @@ const I = {
   close:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
   shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
   ledger:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  cash:'<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M2 10h2M20 10h2"/>',
   download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
   send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
   filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>'
@@ -415,6 +416,7 @@ const NAV = [
   ]},
   {group:'Finance & Controls', items:[
     {id:'revrec', label:'Revenue Recognition', icon:'revrec'},
+    {id:'cashflow', label:'Cash & Treasury', icon:'cash'},
     {id:'close', label:'Financial Close', icon:'close', badge:'5', muted:true},
     {id:'tax', label:'Tax & Compliance', icon:'tax'},
     {id:'controls', label:'Controls & Audit', icon:'shield'},
@@ -924,6 +926,64 @@ VIEWS.reports = (v)=>{
 };
 
 /* ---------- Settings ---------- */
+/* ---------- Cash & Treasury ---------- */
+VIEWS.cashflow = (v)=>{
+  const fc=[ // expected collections forecast by week ($k)
+    ['Wk 1','Jun 30',142,96],['Wk 2','Jul 07',88,40],['Wk 3','Jul 14',74,33],
+    ['Wk 4','Jul 21',61,20],['Wk 5','Jul 28',49,0],['Wk 6','Aug 04',38,0],
+  ];
+  const banks=[
+    ['Operating · USD','JP Morgan ••4021',3910220,'good','Reconciled'],
+    ['Collections · USD','JP Morgan ••7740',482600,'good','Reconciled'],
+    ['Operating · EUR','Deutsche Bank ••1185',612400,'warn','Pending sweep'],
+    ['Reserve · USD','JP Morgan ••9902',1500000,'good','Reconciled'],
+  ];
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Cash & treasury','Cash position, collections forecast and bank reconciliation across entities and currencies.',
+      `<button class="btn ghost" data-act="toast" data-arg="Exporting cash flow statement…">${svg(I.download,15)} Cash flow stmt</button>
+       <button class="btn primary" data-act="toast" data-arg="Initiating cash sweep…">Sweep to operating</button>`)}
+    <div class="grid kpis">
+      ${kpi('Total cash position','$6.51M','4 accounts · 2 currencies',{trend:3.4,accent:true})}
+      ${kpi('Collected MTD','$285,100','94% of $303k forecast',{trend:7})}
+      ${kpi('Projected month-end','$6.79M','after expected inflows',{trend:4})}
+      ${kpi('Cash runway','—','net cash positive',{})}
+    </div>
+    <div class="row">
+      <div class="card panel">
+        <div class="panel-head"><h3>Collections forecast</h3><span class="sub">expected vs committed · next 6 weeks ($k)</span>
+          <div class="right"><div class="seg"><button class="on">6 wk</button><button>Quarter</button></div></div></div>
+        <div class="minibars" id="fcBars"></div>
+        <div class="legend"><span><i style="background:var(--ember)"></i>Expected (risk-weighted)</span><span><i style="background:var(--surface-3)"></i>Open A/R</span></div>
+        <div class="note info" style="margin-top:14px">${svg(I.cash,15)}<div>Forecast is risk-weighted by account health and payment history. <b>$132.6k</b> open A/R, of which <b>$92.9k</b> is overdue and routed to dunning.</div></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-head"><h3>Bank accounts</h3><span class="sub">$6.51M</span></div>
+        <div class="table-wrap" style="border:none">
+          <table style="min-width:0"><thead><tr><th>Account</th><th class="num">Balance</th><th>Status</th></tr></thead>
+          <tbody>${banks.map(b=>`<tr><td><div class="nm">${b[0]}</div><div class="mut mono">${b[1]}</div></td><td class="num">${fmt(b[2])}</td><td>${pill(b[3],b[4])}</td></tr>`).join('')}</tbody></table>
+        </div>
+        <div class="sec-title">This period</div>
+        <dl class="kv">
+          <dt>Inflows</dt><dd style="color:var(--good)">+$285,100</dd>
+          <dt>Refunds & credits</dt><dd style="color:var(--crit)">-$10,200</dd>
+          <dt>Processing fees</dt><dd style="color:var(--crit)">-$6,420</dd>
+          <dt>Net cash flow</dt><dd class="mono" style="color:var(--ember-soft);font-weight:600">+$268,480</dd>
+        </dl>
+      </div>
+    </div>
+  </div>`));
+  requestAnimationFrame(()=>{
+    const wrap=document.getElementById('fcBars'); if(!wrap)return;
+    const max=Math.max(...fc.map(f=>f[2]));
+    wrap.innerHTML=fc.map(f=>{
+      const eh=(f[2]/max)*100, oh=(f[3]/max)*100;
+      return `<div class="mb"><div class="stack" style="height:100%;justify-content:flex-end;gap:2px">
+        <i style="height:${eh}%;background:linear-gradient(180deg,var(--ember-soft),var(--ember-deep))" title="expected"></i>
+        <i style="height:${oh}%;background:var(--surface-3)" title="open"></i></div><small>${f[0]}</small></div>`;
+    }).join('');
+  });
+};
+
 /* ---------- Financial Close ---------- */
 VIEWS.close = (v)=>{
   const tasks=[
