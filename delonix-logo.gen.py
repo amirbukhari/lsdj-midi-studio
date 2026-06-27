@@ -120,7 +120,7 @@ for i, (tx, ty, w, c) in enumerate(attach):
 
 # head plumes (three thin orange/white streamers up from the head)
 plumes = []
-hx, hy = 744, 286
+hx, hy = 748, 289
 # three plumes that splay outward and curl back, tapering to a point
 for sway, dx, dy in [(-26, -34, -150), (-10, 4, -168), (16, 40, -150)]:
     c1x, c1y = hx + sway, hy - 52          # initial outward sway
@@ -128,36 +128,34 @@ for sway, dx, dy in [(-26, -34, -150), (-10, 4, -168), (16, 40, -150)]:
     tx, ty = hx + dx, hy + dy
     plumes.append(f"M{fmt(hx)},{fmt(hy)} C{fmt(c1x)},{fmt(c1y)} {fmt(c2x)},{fmt(c2y)} {fmt(tx)},{fmt(ty)}")
 
-# ---------- PHOENIX BODY (white, S-curve from base to head) ----------
-body = (
-    "M712,520 "                        # base at root convergence
-    "C690,470 700,430 712,392 "        # lower body rising
-    "C720,366 706,344 712,322 "        # chest/neck
-    "C716,308 724,300 716,300 "        # to head
-)
-# Filled phoenix body with motion: tail base -> forward chest -> arched neck -> head
-# Drawn as a single flowing silhouette (left edge = breast, right edge = back).
-body_fill = (
-    "M718,522 "                        # tail base, right
-    "C700,486 690,452 696,416 "        # back lower, sweeping up
-    "C699,398 706,386 700,372 "        # toward breast
-    "C694,356 692,340 700,326 "        # breast pushes forward (left)
-    "C705,316 712,312 716,304 "        # up the front of the neck
-    "C719,298 716,290 721,286 "        # throat to chin
-    "C725,280 736,278 742,282 "        # head: rises up-right
-    "C751,287 752,298 746,304 "        # crown / back of head
-    "C742,308 735,308 731,312 "        # nape
-    "C726,322 729,340 726,356 "        # back of neck descending
-    "C732,378 730,396 724,414 "        # back of body
-    "C730,452 732,488 726,522 "        # back lower to tail
-    "Z"
-)
-# open beak pointing up-left from the head
-beak = "M721,289 L705,280 L722,296 Z"
-# small crest tuft at the back of the head
-crest = "M746,288 C758,278 766,280 770,272 C764,286 757,292 748,296 Z"
+# ---------- PHOENIX BODY (slender, tapered, with motion) ----------
+def smooth_closed(p):
+    """Smooth closed curve passing through midpoints of a point loop (no kinks)."""
+    n = len(p)
+    mx0, my0 = (p[0][0]+p[-1][0])/2, (p[0][1]+p[-1][1])/2
+    d = [f"M{fmt(mx0)},{fmt(my0)}"]
+    for i in range(n):
+        cx, cy = p[i]
+        nx_, ny_ = p[(i+1) % n]
+        d.append(f"Q{fmt(cx)},{fmt(cy)} {fmt((cx+nx_)/2)},{fmt((cy+ny_)/2)}")
+    d.append("Z")
+    return " ".join(d)
+
+# front/breast edge (top->bottom), then back edge (bottom->top).
+# Narrow neck, a forward breast bulge, tapering to a slim point at the roots.
+body_pts = [
+    (728, 316), (717, 342), (705, 374), (704, 410), (709, 448), (711, 484), (712, 516),
+    (717, 516), (720, 484), (723, 448), (726, 410), (725, 374), (730, 342), (738, 316),
+]
+body_fill = smooth_closed(body_pts)
+# small rounded head, tilted up, sitting on the neck
+head = "M729,310 C724,298 730,287 743,287 C755,287 761,297 755,306 C750,313 736,316 729,310 Z"
+# open beak pointing up-left
+beak = "M729,302 L710,291 L731,309 Z"
+# crest: a slim tuft sweeping up off the back of the head
+crest = "M754,293 C768,283 778,283 786,273 C778,290 767,296 756,300 Z"
 # head eye
-eye = (732, 294, 2.0)
+eye = (745, 297, 2.1)
 
 def circle(cx, cy, r, **kw):
     a = " ".join(f'{k.replace("_","-")}="{v}"' for k, v in kw.items())
@@ -253,6 +251,7 @@ out.append('</g>')
 
 # phoenix body
 out.append(f'<path id="crest" d="{crest}" fill="{ORANGE_HI}"/>')
+out.append(f'<path id="head" d="{head}" fill="url(#body)"/>')
 out.append(f'<path id="body" d="{body_fill}" fill="url(#body)"/>')
 out.append(f'<path id="beak" d="{beak}" fill="{ORANGE_HI}"/>')
 out.append(circle(eye[0], eye[1], eye[2], fill="#000000"))
