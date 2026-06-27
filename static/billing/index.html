@@ -389,6 +389,7 @@ const I = {
   shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
   ledger:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
   cash:'<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M2 10h2M20 10h2"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
   download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
   send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
   filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>'
@@ -416,6 +417,7 @@ const NAV = [
   ]},
   {group:'Finance & Controls', items:[
     {id:'statements', label:'Financial Statements', icon:'ledger'},
+    {id:'consolidation', label:'Consolidation', icon:'globe'},
     {id:'revrec', label:'Revenue Recognition', icon:'revrec'},
     {id:'cashflow', label:'Cash & Treasury', icon:'cash'},
     {id:'close', label:'Financial Close', icon:'close', badge:'5', muted:true},
@@ -927,6 +929,62 @@ VIEWS.reports = (v)=>{
 };
 
 /* ---------- Settings ---------- */
+/* ---------- Consolidation ---------- */
+VIEWS.consolidation = (v)=>{
+  // [entity, region, ccy, localRev, usdRev, status]
+  const ent=[
+    ['Delonix Inc','United States','USD',290000,290000,'good','Parent'],
+    ['Delonix EU GmbH','Germany','EUR',110000,118800,'good','Active'],
+    ['Delonix UK Ltd','United Kingdom','GBP',64000,81300,'good','Active'],
+    ['Delonix APAC Pte','Singapore','SGD',48000,35500,'warn','FX review'],
+    ['Delonix Canada Inc','Canada','CAD',28000,20500,'good','Active'],
+  ];
+  const sum=ent.reduce((s,e)=>s+e[4],0);
+  const elim=-31910, consolidated=sum+elim;
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Consolidation','Multi-entity consolidation with intercompany eliminations and FX translation to the group reporting currency (USD).',
+      `<button class="btn ghost" data-act="toast" data-arg="Exporting consolidation workbook…">${svg(I.download,15)} Workbook</button>
+       <div class="seg"><button class="on">USD</button><button>By entity</button></div>`)}
+    <div class="grid kpis">
+      ${kpi('Consolidated revenue','$514,190','5 entities · 5 currencies',{trend:2.0,accent:true})}
+      ${kpi('Reporting entities','5','3 regions',{})}
+      ${kpi('Intercompany eliminations','$31,910','removed on consol',{})}
+      ${kpi('FX translation impact','-$2,140','vs prior-month rates',{trend:-0.4})}
+    </div>
+    <div class="row">
+      <div class="card panel">
+        <div class="panel-head"><h3>Entities</h3><span class="sub">local &amp; group currency</span></div>
+        <div class="table-wrap" style="border:none">
+          <table><thead><tr><th>Entity</th><th>Currency</th><th class="num">Revenue (local)</th><th class="num">Revenue (USD)</th><th class="num">% of group</th><th>Status</th></tr></thead>
+          <tbody>${ent.map(e=>`<tr><td><div class="acct"><div class="logo-chip" style="background:${colorFor(e[0])}">${e[2]}</div><div><div class="nm">${e[0]}</div><div class="mut">${e[1]} · ${e[6]}</div></div></div></td>
+            <td class="mono">${e[2]}</td>
+            <td class="num">${e[2]==='USD'?'$':''}${e[3].toLocaleString()}${e[2]!=='USD'?' '+e[2]:''}</td>
+            <td class="num">${fmt(e[4])}</td>
+            <td class="num">${Math.round(e[4]/sum*100)}%</td>
+            <td>${pill(e[5],e[5]==='good'?'Consolidated':'FX review')}</td></tr>`).join('')}</tbody></table>
+        </div>
+      </div>
+      <div class="card panel">
+        <div class="panel-head"><h3>Consolidation bridge</h3><span class="sub">to group USD</span></div>
+        <div class="totals">
+          <div class="t"><span class="mut">Sum of entities (USD)</span><span class="num">${fmt(sum)}</span></div>
+          <div class="t"><span class="mut">Intercompany eliminations</span><span class="num" style="color:var(--crit)">−${fmt(-elim)}</span></div>
+          <div class="t grand"><span>Consolidated revenue</span><span class="num">${fmt(consolidated)}</span></div>
+        </div>
+        <div class="sec-title">Intercompany</div>
+        <div class="note info">${svg(I.globe,15)}<div>Intercompany charges (platform cost-share, IP licensing, support recharges) are <b>eliminated</b> on consolidation to avoid double-counting. Transfer pricing applied per the group policy.</div></div>
+        <div class="sec-title">FX rates applied</div>
+        <dl class="kv">
+          <dt>EUR → USD</dt><dd class="mono">1.0800</dd>
+          <dt>GBP → USD</dt><dd class="mono">1.2700</dd>
+          <dt>SGD → USD</dt><dd class="mono">0.7400</dd>
+          <dt>CAD → USD</dt><dd class="mono">0.7320</dd>
+        </dl>
+      </div>
+    </div>
+  </div>`));
+};
+
 /* ---------- Financial Statements ---------- */
 VIEWS.statements = (v)=>{
   // [label, actual, budget, weight(0 line,1 subtotal,2 highlight)]
