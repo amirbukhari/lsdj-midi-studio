@@ -62,6 +62,10 @@ def initialize_default_midi():
 def index():
     return render_template('index.html', default_meta=DEFAULT_META)
 
+@app.route('/billing')
+def billing():
+    return send_file(os.path.join('static', 'billing', 'index.html'))
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'midi' not in request.files:
