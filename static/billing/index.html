@@ -867,10 +867,45 @@ VIEWS.revrec = (v)=>{
         ['CT-5102','Aurora Health Group',1156800,771200,385600,'Ratable · 12mo'],
         ['CT-4821','Northwind Logistics',578400,385600,192800,'Ratable · 12mo'],
         ['CT-5618','Vega Retail',495600,206500,289100,'Milestone'],
-      ].map(r=>`<tr><td class="mono">${r[0]}</td><td class="nm">${r[1]}</td><td class="num">${fmt(r[2])}</td><td class="num" style="color:var(--good)">${fmt(r[3])}</td><td class="num" style="color:var(--ember-soft)">${fmt(r[4])}</td><td class="mut">${r[5]}</td></tr>`).join('')}</tbody></table>
+      ].map(r=>`<tr style="cursor:pointer" data-act="revsched" data-arg="${r[0]}|${r[1]}|${r[2]}|${r[3]}|${r[4]}|${r[5]}"><td class="mono">${r[0]}</td><td class="nm">${r[1]}</td><td class="num">${fmt(r[2])}</td><td class="num" style="color:var(--good)">${fmt(r[3])}</td><td class="num" style="color:var(--ember-soft)">${fmt(r[4])}</td><td class="mut">${r[5]}</td></tr>`).join('')}</tbody></table>
   </div>`));
   requestAnimationFrame(()=>drawWaterfall());
 };
+
+function openRevSchedule(arg){
+  const [id,acct,total,recog,deferred,method]=arg.split('|');
+  const T=+total, R=+recog, D=+deferred;
+  const monthly=Math.round(T/12);
+  const recognizedMonths=Math.round(R/monthly);
+  const mlabels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const rows=mlabels.map((m,i)=>{
+    const done=i<recognizedMonths;
+    const cur=i===recognizedMonths;
+    return `<tr ${cur?'style="background:var(--surface-2)"':''}>
+      <td class="mono">${m} 2026</td>
+      <td class="num">${fmt2(monthly)}</td>
+      <td class="num">${fmt(monthly*(i+1))}</td>
+      <td class="num" style="color:var(--ember-soft)">${fmt(Math.max(0,T-monthly*(i+1)))}</td>
+      <td>${done?pill('good','Recognized'):cur?pill('ember','Current'):pill('muted','Scheduled')}</td></tr>`;
+  }).join('');
+  openDrawer(`
+    <div class="drawer-head">
+      <div><div class="mono mut">${id} · ASC 606 schedule</div><div style="font-size:18px;font-weight:650">${acct}</div></div>
+      <button class="x" data-act="close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="grid kpis" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        ${kpi('Contract value',fmt(T),method,{})}
+        ${kpi('Recognized',fmt(R),Math.round(R/T*100)+'% to P&L',{})}
+        ${kpi('Deferred',fmt(D),'balance sheet',{})}
+        ${kpi('Monthly',fmt(monthly),'straight-line',{})}
+      </div>
+      <div class="sec-title">Recognition schedule</div>
+      <table class="line-items"><thead><tr><th>Period</th><th style="text-align:right">Recognized</th><th style="text-align:right">Cumulative</th><th style="text-align:right">Remaining</th><th style="text-align:right">Status</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+      <div class="note info" style="margin-top:16px">${svg(I.revrec,15)}<div>Revenue is recognized ratably as the performance obligation is satisfied (ASC 606 / IFRS 15). Unrecognized amounts sit in <b>deferred revenue</b> until earned.</div></div>
+    </div>`);
+}
 
 /* ---------- Tax & Compliance ---------- */
 VIEWS.tax = (v)=>{
@@ -1455,6 +1490,7 @@ document.addEventListener('click',e=>{
   if(a==='route'){ closeDrawer(); return route(arg); }
   if(a==='invoice') return openInvoice(arg);
   if(a==='account') return openAccount(arg);
+  if(a==='revsched') return openRevSchedule(arg);
   if(a==='toast') return toast(arg);
 });
 const _lf=document.getElementById('loginForm');
