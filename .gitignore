@@ -20,3 +20,6 @@ lsdj_rom/lsdj9_4_2.gb
 lsdj_rom/lsdj9_4_2.gb.ram
 lsdj_rom/lsdj9_4_2.sav
 lsdj_rom/lsdj9_4_2.sav.backup
+
+# Agent/workflow scratch output
+scratchpad/
