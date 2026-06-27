@@ -16,6 +16,11 @@
     <stop offset="55%" stop-color="#EB4705"/>
     <stop offset="100%" stop-color="#FF7A2A"/>
   </linearGradient>
+  <linearGradient id="wingHi" x1="0" y1="1" x2="1" y2="0">
+    <stop offset="0%" stop-color="#EB4705" stop-opacity="0"/>
+    <stop offset="55%" stop-color="#FF8A3D"/>
+    <stop offset="100%" stop-color="#FFCB5E"/>
+  </linearGradient>
   <linearGradient id="body" x1="0" y1="1" x2="0" y2="0">
     <stop offset="0%" stop-color="#FFFFFF"/>
     <stop offset="100%" stop-color="#FFE9DC"/>
@@ -58,6 +63,17 @@
 <path d="M728.0,394.0 Q833.4,294.8 898.0,234.0"/>
 <path d="M728.0,398.0 Q803.6,272.8 850.0,196.0"/>
 <path d="M728.0,402.0 Q773.9,261.9 802.0,176.0"/>
+</g>
+<g id="wing-glow" opacity="0.85">
+<path d="M728.0,374.0 C731.1,404.3 767.8,432.0 783.5,444.0 C765.2,419.1 738.0,384.6 728.0,374.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,378.0 C752.8,410.3 817.8,424.2 842.7,434.9 C803.7,414.3 747.2,385.9 728.0,378.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,382.0 C772.3,406.2 859.5,395.9 892.7,402.4 C836.6,394.3 754.6,383.7 728.0,382.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,386.0 C784.1,395.3 879.5,354.6 917.1,352.8 C853.0,363.1 757.7,379.1 728.0,386.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,390.0 C787.6,381.5 877.6,310.8 915.1,300.5 C852.4,329.9 756.6,374.3 728.0,390.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,394.0 C783.5,367.1 856.5,270.1 889.6,250.4 C836.3,298.0 751.7,370.2 728.0,394.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,398.0 C773.1,355.8 822.7,242.7 847.8,214.1 C809.0,275.0 744.7,368.4 728.0,398.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,402.0 C760.2,349.5 787.8,229.5 804.0,194.8 C780.0,263.5 737.8,369.2 728.0,402.0 Z" fill="url(#wingHi)"/>
+<path d="M728.0,406.0 C748.2,348.7 758.1,228.6 766.6,190.9 C755.0,262.3 732.2,372.2 728.0,406.0 Z" fill="url(#wingHi)"/>
 </g>
 </g>
 <g id="tree" fill="none" stroke="#FFFFFF" stroke-linecap="round">

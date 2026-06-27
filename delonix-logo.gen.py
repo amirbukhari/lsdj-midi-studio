@@ -111,6 +111,7 @@ attach = [   # (tip_x, tip_y, width, curl)
     (762, 172, 28, 18),
 ]
 feather_spines = []
+feather_hi = []   # inner fiery cores
 # slight vertical offset of bases so feathers don't all pinch one point
 for i, (tx, ty, w, c) in enumerate(attach):
     by = shoulder[1] + (i - len(attach)/2) * 4
@@ -119,6 +120,9 @@ for i, (tx, ty, w, c) in enumerate(attach):
     if 1 <= i <= 7:
         mx, my = shoulder[0] + (tx-shoulder[0])*0.62, by + (ty-by)*0.62
         feather_spines.append(f"M{fmt(shoulder[0])},{fmt(by)} Q{fmt(mx)},{fmt(my)} {fmt(tx)},{fmt(ty)}")
+    # narrower, brighter core reaching ~88% to the tip -> fiery glow
+    htx, hty = shoulder[0] + (tx-shoulder[0])*0.9, by + (ty-by)*0.9
+    feather_hi.append(flame(shoulder[0], by, htx, hty, w*0.42, c*0.9))
 
 # dark base that follows the inner ~55% of the fan so no black shows between feathers
 inner = [(shoulder[0] + (tx-shoulder[0])*0.55, shoulder[1] + (ty-shoulder[1])*0.55)
@@ -191,6 +195,11 @@ out.append(f'''<defs>
     <stop offset="55%" stop-color="{ORANGE}"/>
     <stop offset="100%" stop-color="{ORANGE_HI}"/>
   </linearGradient>
+  <linearGradient id="wingHi" x1="0" y1="1" x2="1" y2="0">
+    <stop offset="0%" stop-color="{ORANGE}" stop-opacity="0"/>
+    <stop offset="55%" stop-color="#FF8A3D"/>
+    <stop offset="100%" stop-color="#FFCB5E"/>
+  </linearGradient>
   <linearGradient id="body" x1="0" y1="1" x2="0" y2="0">
     <stop offset="0%" stop-color="#FFFFFF"/>
     <stop offset="100%" stop-color="#FFE9DC"/>
@@ -232,6 +241,10 @@ for i, f in enumerate(feathers):
 out.append('<g id="wing-spines" fill="none" stroke="#7A2205" stroke-width="1.4" opacity="0.55" stroke-linecap="round">')
 for s in feather_spines:
     out.append(f'<path d="{s}"/>')
+out.append('</g>')
+out.append('<g id="wing-glow" opacity="0.85">')
+for f in feather_hi:
+    out.append(f'<path d="{f}" fill="url(#wingHi)"/>')
 out.append('</g>')
 out.append('</g>')
 
