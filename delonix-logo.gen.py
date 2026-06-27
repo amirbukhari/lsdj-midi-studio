@@ -84,14 +84,16 @@ def flame(bx, by, tx, ty, w, curl):
     L = math.hypot(dx, dy) or 1
     ux, uy = dx/L, dy/L          # along feather
     nx, ny = -uy, ux             # perpendicular (leading-edge side = +n)
-    # leading edge: bows out, then sweeps up into the tip with an upward curl
+    # tip flicks toward the leading edge and upward, like a flame lick
+    tcx, tcy = tx + nx*curl*0.5, ty + ny*curl*0.5 - curl*0.35
+    # leading edge: bows out, then sweeps into the curled tip
     l1x, l1y = bx + ux*L*0.28 + nx*w,        by + uy*L*0.28 + ny*w
-    l2x, l2y = bx + ux*L*0.78 + nx*w*0.42,   by + uy*L*0.78 + ny*w*0.42 - curl
+    l2x, l2y = bx + ux*L*0.80 + nx*w*0.48,   by + uy*L*0.80 + ny*w*0.48 - curl*0.6
     # trailing edge: sweeps back to base with a gentle inward scoop
-    t1x, t1y = bx + ux*L*0.55 - nx*w*0.16,   by + uy*L*0.55 - ny*w*0.16
+    t1x, t1y = tcx - ux*L*0.34 - nx*w*0.10,  tcy - uy*L*0.34 - ny*w*0.10
     t2x, t2y = bx + ux*L*0.16 - nx*w*0.06,   by + uy*L*0.16 - ny*w*0.06
     return (f"M{fmt(bx)},{fmt(by)} "
-            f"C{fmt(l1x)},{fmt(l1y)} {fmt(l2x)},{fmt(l2y)} {fmt(tx)},{fmt(ty)} "
+            f"C{fmt(l1x)},{fmt(l1y)} {fmt(l2x)},{fmt(l2y)} {fmt(tcx)},{fmt(tcy)} "
             f"C{fmt(t1x)},{fmt(t1y)} {fmt(t2x)},{fmt(t2y)} {fmt(bx)},{fmt(by)} Z")
 
 # Wide overlapping feathers fanning from a common shoulder; drawn back-to-front
