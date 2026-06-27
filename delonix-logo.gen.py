@@ -108,15 +108,23 @@ attach = [   # (tip_x, tip_y, width, curl)
     (802, 176, 34, 22),    # top, most vertical
     (762, 172, 28, 18),
 ]
-# thin connective membrane hugging the shoulder so the roots converge cleanly
-wing_base = ("M724,360 C724,330 726,308 728,300 "
-             "C742,300 754,318 756,360 "
-             "C758,404 748,440 730,452 "
-             "C720,420 722,392 724,360 Z")
+feather_spines = []
 # slight vertical offset of bases so feathers don't all pinch one point
 for i, (tx, ty, w, c) in enumerate(attach):
     by = shoulder[1] + (i - len(attach)/2) * 4
     feathers.append(flame(shoulder[0], by, tx, ty, w, c))
+    # a faint spine down the middle of the longer feathers, for depth
+    if 1 <= i <= 7:
+        mx, my = shoulder[0] + (tx-shoulder[0])*0.62, by + (ty-by)*0.62
+        feather_spines.append(f"M{fmt(shoulder[0])},{fmt(by)} Q{fmt(mx)},{fmt(my)} {fmt(tx)},{fmt(ty)}")
+
+# dark base that follows the inner ~55% of the fan so no black shows between feathers
+inner = [(shoulder[0] + (tx-shoulder[0])*0.55, shoulder[1] + (ty-shoulder[1])*0.55)
+         for (tx, ty, w, c) in attach]
+wing_base = " ".join(
+    [f"M{fmt(shoulder[0])},{fmt(shoulder[1]-30)}"] +
+    [f"L{fmt(px)},{fmt(py)}" for px, py in inner] +
+    [f"L{fmt(shoulder[0])},{fmt(shoulder[1]+30)}", "Z"])
 
 # head plumes (three thin orange/white streamers up from the head)
 plumes = []
@@ -212,13 +220,17 @@ out.append('</g>')
 # emblem group with subtle glow
 out.append('<g id="emblem" filter="url(#glow)">')
 
-# wing (behind body): dark membrane base + overlapping flame feathers
+# wing (behind body): dark fan base + overlapping flame feathers + faint spines
 out.append('<g id="wing">')
-out.append(f'<path d="{wing_base}" fill="#8A2706"/>')
+out.append(f'<path d="{wing_base}" fill="#7A2205"/>')
 for i, f in enumerate(feathers):
     # alternate tone so overlapping feathers read as distinct licks of flame
     fill = "url(#wing)" if i % 2 == 0 else ORANGE
     out.append(f'<path d="{f}" fill="{fill}"/>')
+out.append('<g id="wing-spines" fill="none" stroke="#7A2205" stroke-width="1.4" opacity="0.55" stroke-linecap="round">')
+for s in feather_spines:
+    out.append(f'<path d="{s}"/>')
+out.append('</g>')
 out.append('</g>')
 
 # tree branches
