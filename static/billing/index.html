@@ -385,6 +385,9 @@ const I = {
   reports:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 17l2-3 2 2 3-4"/>',
   settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
   check:'<polyline points="20 6 9 17 4 12"/>',
+  close:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  ledger:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
   download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
   send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
   filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>'
@@ -410,9 +413,11 @@ const NAV = [
     {id:'credits', label:'Credits & Refunds', icon:'credits'},
     {id:'dunning', label:'Dunning & Collections', icon:'dunning', badge:'7'},
   ]},
-  {group:'Finance', items:[
+  {group:'Finance & Controls', items:[
     {id:'revrec', label:'Revenue Recognition', icon:'revrec'},
+    {id:'close', label:'Financial Close', icon:'close', badge:'5', muted:true},
     {id:'tax', label:'Tax & Compliance', icon:'tax'},
+    {id:'controls', label:'Controls & Audit', icon:'shield'},
     {id:'settings', label:'Settings', icon:'settings'},
   ]},
 ];
@@ -919,6 +924,112 @@ VIEWS.reports = (v)=>{
 };
 
 /* ---------- Settings ---------- */
+/* ---------- Financial Close ---------- */
+VIEWS.close = (v)=>{
+  const tasks=[
+    ['Sub-ledger reconciliation','AR & billing → GL tie-out','good','Reconciled','Controller'],
+    ['Usage rating cut-off','Meter close & final rating','good','Complete','Rev Ops'],
+    ['Revenue recognition run','ASC 606 schedules posted','good','Posted','Rev Accounting'],
+    ['Accruals & deferrals','Unbilled + deferred revenue','ember','In review','Controller'],
+    ['Tax provisioning','Liability accrual by jurisdiction','warn','Pending','Tax'],
+    ['Intercompany eliminations','Multi-entity consolidation','warn','Pending','FP&A'],
+    ['FX revaluation','Non-USD AR remeasurement','good','Complete','Treasury'],
+    ['Flux analysis','MoM variance commentary','muted','Not started','FP&A'],
+    ['Lock period','Freeze sub-ledgers & post to GL','muted','Blocked','CFO'],
+  ];
+  const recon=[
+    ['Accounts receivable','1,284,400','1,284,400','0','good'],
+    ['Deferred revenue','2,840,000','2,840,000','0','good'],
+    ['Unbilled (contract asset)','214,000','214,000','0','good'],
+    ['Cash & equivalents','3,910,220','3,909,640','580','warn'],
+    ['Tax payable','44,180','41,900','2,280','warn'],
+  ];
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Financial close — June 2026','Period-end checklist, sub-ledger reconciliation and GL posting. Targeting a 5-day close.',
+      `<button class="btn ghost" onclick="toast('Exporting close package…')">${svg(I.download,15)} Close package</button>
+       <button class="btn primary" data-act="toast" data-arg="Posting to general ledger…">Post to GL</button>`)}
+    <div class="grid kpis">
+      ${kpi('Close progress','68%','6 of 9 tasks done',{accent:true})}
+      ${kpi('Day of close','Day 3','target: Day 5',{})}
+      ${kpi('Unreconciled items','2','$2,860 variance',{trend:-40})}
+      ${kpi('Journal entries','146','posted this period',{})}
+    </div>
+    <div class="row">
+      <div class="card panel">
+        <div class="panel-head"><h3>Close checklist</h3><span class="sub">owner & status</span><div class="right"><span class="pill ember">3 open</span></div></div>
+        <div class="table-wrap" style="border:none">
+          <table style="min-width:0"><thead><tr><th>Task</th><th>Owner</th><th>Status</th></tr></thead>
+          <tbody>${tasks.map(t=>`<tr><td><div class="nm">${t[0]}</div><div class="mut">${t[1]}</div></td><td class="mut">${t[4]}</td><td>${pill(t[2],t[3])}</td></tr>`).join('')}</tbody></table>
+        </div>
+      </div>
+      <div class="card panel">
+        <div class="panel-head"><h3>GL reconciliation</h3><span class="sub">sub-ledger vs NetSuite</span></div>
+        <div class="table-wrap" style="border:none">
+          <table style="min-width:0"><thead><tr><th>Account</th><th class="num">Sub-ledger</th><th class="num">GL</th><th class="num">Δ</th></tr></thead>
+          <tbody>${recon.map(r=>`<tr><td class="nm">${r[0]}</td><td class="num">$${r[1]}</td><td class="num">$${r[2]}</td><td class="num">${r[4]==='good'?'<span style="color:var(--good)">$0</span>':'<span style="color:var(--warn)">$'+r[3]+'</span>'}</td></tr>`).join('')}</tbody></table>
+        </div>
+        <div class="note warn" style="margin-top:14px">${svg(I.dunning,15)}<div><b>2 variances</b> open — $580 cash timing, $2,280 tax accrual. Both must clear before the period can be locked.</div></div>
+        <div class="sec-title">ERP sync</div>
+        <div class="gw"><div class="gi" style="background:#1f7a3d22;color:#2dbd63">N</div><div style="flex:1"><div class="nm">NetSuite</div><div class="mut">Last sync 12m ago · journals + AR</div></div>${pill('good','Live')}</div>
+      </div>
+    </div>
+  </div>`));
+};
+
+/* ---------- Controls & Audit ---------- */
+VIEWS.controls = (v)=>{
+  const controls=[
+    ['Segregation of duties','No single user can create & approve a credit','Quarterly','Jun 14','good','Effective'],
+    ['Credit & refund approval','Tiered thresholds, dual sign-off &gt; $10k','Continuous','Jun 26','good','Effective'],
+    ['Revenue cut-off','Recognition tied to performance obligations','Monthly','Jun 25','good','Effective'],
+    ['Logical access review','Quarterly user access recertification','Quarterly','Apr 30','warn','Due'],
+    ['Change management','Peer review + CI gate on billing logic','Continuous','Jun 27','good','Effective'],
+    ['Vendor / sub-processor review','Annual risk assessment of processors','Annual','Jan 12','good','Effective'],
+  ];
+  const attest=[
+    ['SOC 2 Type II','#49c46e','Security, Availability, Confidentiality','good','Valid → 2026-11'],
+    ['PCI-DSS Level 1','#ff8a4c','Service Provider · v4.0.1 · QSA audited','good','AOC on file'],
+    ['ISO 27001','#6aa6ff','ISMS certification','good','Valid → 2027-03'],
+    ['GDPR / CCPA','#b07cff','DPA + sub-processor registry','good','Compliant'],
+  ];
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Controls & audit','Financial controls, attestations and the immutable audit trail — built for SOX, external audit and due diligence.',
+      `<button class="btn ghost" data-act="toast" data-arg="Generating audit evidence pack…">${svg(I.download,15)} Evidence pack</button>
+       <button class="btn primary" data-act="toast" data-arg="Opening AOC & SOC 2 report">View certificates</button>`)}
+    <div class="grid kpis">
+      ${kpi('Control environment','98%','controls effective',{accent:true})}
+      ${kpi('Open exceptions','1','access review due',{trend:-50})}
+      ${kpi('Audit log events','1.2M','immutable · 7-yr retention',{})}
+      ${kpi('Card data scope','Tokenized','no PAN stored',{})}
+    </div>
+    <div class="sec-title">Attestations & certifications</div>
+    <div class="grid cards-2" style="margin-bottom:20px">
+      ${attest.map(a=>`<div class="card gw"><div class="gi" style="background:${a[1]}22;color:${a[1]}">${svg(I.shield,20)}</div><div style="flex:1"><div class="nm">${a[0]}</div><div class="mut">${a[2]}</div></div><div style="text-align:right"><div>${pill(a[3],'Active')}</div><div class="mut" style="margin-top:5px">${a[4]}</div></div></div>`).join('')}
+    </div>
+    <div class="row">
+      <div class="card panel">
+        <div class="panel-head"><h3>Financial controls</h3><span class="sub">SOX-aligned · key controls</span></div>
+        <div class="table-wrap" style="border:none">
+          <table><thead><tr><th>Control</th><th>Frequency</th><th>Last tested</th><th>Status</th></tr></thead>
+          <tbody>${controls.map(c=>`<tr><td><div class="nm">${c[0]}</div><div class="mut">${c[1]}</div></td><td class="mut">${c[2]}</td><td class="mut">${c[3]}</td><td>${pill(c[4],c[5])}</td></tr>`).join('')}</tbody></table>
+        </div>
+      </div>
+      <div class="card panel">
+        <div class="panel-head"><h3>PCI responsibility</h3><span class="sub">shared model</span></div>
+        <div class="dot-step" style="margin-bottom:6px">
+          ${[['Merchant','active'],['delonix','done'],['Gateway','done']].map((s,i)=>`<div class="ds ${s[1]}"><div class="c">${s[1]==='done'?'✓':i+1}</div><small>${s[0]}</small></div>`).join('')}
+        </div>
+        <div class="note info" style="margin-top:14px">${svg(I.shield,15)}<div>PCI-DSS is a <b>shared responsibility</b> across merchant, delonix and the payment gateway. Card data is encrypted to the gateway and only a <b>token</b> is stored — no PAN — minimizing your scope. Your SAQ type (A vs A-EP) depends on integration method and is set by your acquiring bank.</div></div>
+        <div class="sec-title">Recent audit trail</div>
+        <div class="activity">
+          ${[['Amir Bukhari','approved credit note CN-2026-090 ($9.8k)','2m'],['System','quarterly SoD control test passed','1h'],['M. Reyes','exported SOC 2 report for due diligence','3h'],['D. Cho','access review reminder issued','1d']]
+            .map(r=>`<div class="act"><div class="ai">${svg(I.shield,15)}</div><div><div class="at">${r[0]}</div><div class="am">${r[1]}</div></div><time>${r[2]}</time></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`));
+};
+
 VIEWS.settings = (v)=>{
   v.appendChild(el(`<div class="view">
     ${pageHead('Settings','Billing configuration, payment gateways, team access and audit trail.','')}
