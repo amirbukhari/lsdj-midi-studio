@@ -98,15 +98,15 @@ def flame(bx, by, tx, ty, w, curl):
 # so each tucks under the next — together they tile into a gapless flame wing.
 shoulder = (728, 392)
 attach = [   # (tip_x, tip_y, width, curl)
-    (806, 462, 30, 6),     # lowest / most horizontal
-    (878, 446, 34, 12),
-    (930, 404, 38, 18),
-    (952, 344, 40, 24),    # mid, longest
-    (944, 282, 40, 28),
-    (910, 226, 38, 30),
-    (858, 188, 34, 28),
-    (804, 168, 28, 24),    # top, most vertical
-    (760, 162, 22, 18),
+    (792, 452, 40, 6),     # lowest / most horizontal
+    (858, 440, 44, 12),
+    (912, 402, 46, 18),
+    (936, 346, 47, 22),    # mid, longest
+    (930, 288, 46, 26),
+    (898, 234, 44, 28),
+    (850, 196, 40, 26),
+    (802, 176, 34, 22),    # top, most vertical
+    (762, 172, 28, 18),
 ]
 # thin connective membrane hugging the shoulder so the roots converge cleanly
 wing_base = ("M724,360 C724,330 726,308 728,300 "
@@ -148,8 +148,8 @@ body_pts = [
     (717, 516), (720, 484), (723, 448), (726, 410), (725, 374), (730, 342), (738, 316),
 ]
 body_fill = smooth_closed(body_pts)
-# small rounded head, tilted up, sitting on the neck
-head = "M729,310 C724,298 730,287 743,287 C755,287 761,297 755,306 C750,313 736,316 729,310 Z"
+# small rounded head, tilted up, sitting cleanly on the neck
+head = "M731,312 C725,300 731,289 743,289 C754,289 760,298 755,307 C751,314 737,318 731,312 Z"
 # open beak pointing up-left
 beak = "M729,302 L710,291 L731,309 Z"
 # crest: a slim tuft sweeping up off the back of the head
