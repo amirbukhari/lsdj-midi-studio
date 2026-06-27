@@ -401,7 +401,11 @@ const I = {
   globe:'<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
   download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
   send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
-  filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>'
+  filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+  ar:'<path d="M3 3v18h18"/><path d="M7 16l4-4 3 3 5-6"/><path d="M9 3v4M15 3v3"/>',
+  portal:'<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+  api:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  plug:'<path d="M9 2v6M15 2v6"/><path d="M7 8h10v3a5 5 0 0 1-10 0z"/><path d="M12 16v6"/>'
 };
 const svg=(p,s=17)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 
@@ -422,6 +426,7 @@ const NAV = [
     {id:'invoices', label:'Invoices', icon:'invoices'},
     {id:'payments', label:'Payments', icon:'payments'},
     {id:'credits', label:'Credits & Refunds', icon:'credits'},
+    {id:'ar', label:'A/R & Cash Application', icon:'ar'},
     {id:'dunning', label:'Dunning & Collections', icon:'dunning', badge:'7'},
   ]},
   {group:'Finance & Controls', items:[
@@ -432,6 +437,11 @@ const NAV = [
     {id:'close', label:'Financial Close', icon:'close', badge:'5', muted:true},
     {id:'tax', label:'Tax & Compliance', icon:'tax'},
     {id:'controls', label:'Controls & Audit', icon:'shield'},
+  ]},
+  {group:'Platform', items:[
+    {id:'portal', label:'Customer Portal', icon:'portal'},
+    {id:'developers', label:'Developers & API', icon:'api'},
+    {id:'integrations', label:'Integrations', icon:'plug'},
     {id:'settings', label:'Settings', icon:'settings'},
   ]},
 ];
@@ -1293,6 +1303,172 @@ VIEWS.controls = (v)=>{
         </div>
       </div>
     </div>
+  </div>`));
+};
+
+/* ---------- A/R & Cash Application ---------- */
+VIEWS.ar = (v)=>{
+  // [customer, current, d1_30, d31_60, d61_90, d90p]
+  const aging=[
+    ['Meridian Bank',142000,0,0,0,0],
+    ['Vega Retail',41300,0,0,0,0],
+    ['Aurora Health Group',8800,0,0,0,0],
+    ['Helios Manufacturing',0,39750,0,0,0],
+    ['Tundra Energy',0,33500,0,0,0],
+    ['Cobalt Robotics',0,0,19600,0,0],
+  ];
+  const col=i=>aging.reduce((s,r)=>s+r[i+1],0);
+  const totals=[0,1,2,3,4].map(col);
+  const grand=totals.reduce((a,b)=>a+b,0);
+  const overdue=grand-totals[0];
+  const receipts=[
+    ['Aurora Health Group',96400,'INV-2026-1042','good','Auto-matched'],
+    ['Northwind Logistics',48200,'INV-2026-1038','good','Auto-matched'],
+    ['Vega Retail',41300,'INV-2026-1036','good','Auto-matched'],
+    ['Patagonia Foods',11200,'—','warn','Needs review'],
+    ['Solstice Media',7400,'partial','ember','Partial match'],
+  ];
+  const bk=['Current','1–30','31–60','61–90','90+'];
+  v.appendChild(el(`<div class="view">
+    ${pageHead('A/R & cash application','Accounts-receivable ledger, aging, and automated matching of incoming cash to open invoices.',
+      `<button class="btn ghost" data-act="toast" data-arg="Exporting A/R aging…">${svg(I.download,15)} Aging report</button>
+       <button class="btn primary" data-act="toast" data-arg="Generating customer statements…">Send statements</button>`)}
+    <div class="grid kpis">
+      ${kpi('Total A/R',fmt(grand),'across 6 accounts',{accent:true})}
+      ${kpi('Overdue',fmt(overdue),'past due',{trend:9})}
+      ${kpi('DSO','27.4','days sales outstanding',{trend:-3.1})}
+      ${kpi('Unapplied cash','$11,200','awaiting match',{})}
+    </div>
+    <div class="card panel" style="margin-bottom:16px">
+      <div class="panel-head"><h3>A/R aging</h3><span class="sub">by customer · ${fmt(grand)} open</span></div>
+      <div class="table-wrap" style="border:none">
+        <table><thead><tr><th>Customer</th>${bk.map(b=>`<th class="num">${b}</th>`).join('')}<th class="num">Total</th></tr></thead>
+        <tbody>${aging.map(r=>{const tot=r.slice(1).reduce((a,b)=>a+b,0);return `<tr><td class="nm">${r[0]}</td>${r.slice(1).map((c,i)=>`<td class="num" ${c&&i>0?'style="color:var(--warn)"':''}>${c?fmt(c):'—'}</td>`).join('')}<td class="num" style="font-weight:600">${fmt(tot)}</td></tr>`;}).join('')}
+        <tr style="background:var(--surface-2)"><td style="font-weight:700">Total</td>${totals.map((t,i)=>`<td class="num" style="font-weight:700;color:${i>0&&t?'var(--warn)':'var(--text)'}">${t?fmt(t):'—'}</td>`).join('')}<td class="num" style="font-weight:700">${fmt(grand)}</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="card panel">
+      <div class="panel-head"><h3>Cash application</h3><span class="sub">auto-match rate 91%</span><div class="right"><span class="pill warn">2 to review</span></div></div>
+      <div class="table-wrap" style="border:none">
+        <table><thead><tr><th>Received from</th><th class="num">Amount</th><th>Matched to</th><th>Status</th></tr></thead>
+        <tbody>${receipts.map(r=>`<tr><td class="nm">${r[0]}</td><td class="num">${fmt(r[1])}</td><td class="mono mut">${r[2]}</td><td>${pill(r[3],r[4])}</td></tr>`).join('')}</tbody></table>
+      </div>
+      <div class="note info" style="margin-top:14px">${svg(I.cash,15)}<div>Incoming payments are auto-matched to open invoices by amount, reference and remittance data. Unmatched receipts route to a review queue; persistent shortfalls feed <b>bad-debt provisioning</b>.</div></div>
+    </div>
+  </div>`));
+};
+
+/* ---------- Customer Portal (self-service preview) ---------- */
+VIEWS.portal = (v)=>{
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Customer portal','A preview of the branded self-service portal your customers use to manage their own billing.',
+      `<button class="btn ghost" data-act="toast" data-arg="Copied portal link">${svg(I.send,15)} Copy portal link</button>
+       <button class="btn primary" data-act="toast" data-arg="Opening portal theme editor">Customize</button>`)}
+    <div class="note info" style="margin-bottom:18px">${svg(I.portal,15)}<div>This is the <b>end-customer</b> view (hosted at billing.delonix.com). Customers self-serve invoices, payment methods and plan changes — deflecting support load and speeding collection.</div></div>
+    <div class="card" style="max-width:760px;margin:0 auto;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border-soft);background:var(--bg-2)">
+        <span style="width:10px;height:10px;border-radius:50%;background:#f24e30"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#e8b23f"></span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#49c46e"></span>
+        <span class="mono mut" style="margin-left:10px;font-size:12px">billing.delonix.com/portal/aurora-health</span>
+      </div>
+      <div style="padding:22px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <div class="logo-chip" style="background:${colorFor('Aurora Health Group')};width:38px;height:38px">AH</div>
+          <div><div style="font-family:var(--display);font-size:17px;font-weight:600">Aurora Health Group</div><div class="mut">Enterprise+ · billed annually · Net 60</div></div>
+          <div style="margin-left:auto">${pill('good','Account in good standing')}</div>
+        </div>
+        <div class="grid kpis" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
+          ${kpi('Current plan','Enterprise+','3,120 seats',{})}
+          ${kpi('Next invoice','$96,400','due Sep 1, 2026',{})}
+          ${kpi('This period usage','12.1M','of 15M included',{})}
+        </div>
+        <div class="sec-title">Amount due now</div>
+        <div class="gw" style="margin-bottom:16px"><div style="flex:1"><div class="nm">Invoice INV-2026-1034</div><div class="mut">Issued Jun 20 · due Jul 20</div></div>
+          <div class="mono" style="font-size:17px;color:var(--ember-soft);margin-right:12px">$8,800.00</div>
+          <button class="btn primary" data-act="toast" data-arg="Opening hosted checkout…">Pay now</button></div>
+        <div class="sec-title">Payment method</div>
+        <div class="gw" style="margin-bottom:16px"><div class="gi" style="background:#635bff22;color:#8b86ff">${svg(I.payments,18)}</div>
+          <div style="flex:1"><div class="nm">ACH · Wells Fargo ••6620</div><div class="mut">Default · autopay on</div></div>
+          <button class="btn ghost" data-act="toast" data-arg="Update payment method">Update</button></div>
+        <div class="sec-title">Billing history</div>
+        <div class="table-wrap" style="border:none"><table style="min-width:0"><tbody>
+          ${[['INV-2026-1042','Jun 1','$96,400','Paid','good'],['INV-2026-0998','Mar 1','$96,400','Paid','good'],['INV-2025-0954','Dec 1','$88,000','Paid','good']]
+            .map(r=>`<tr><td class="mono">${r[0]}</td><td class="mut">${r[1]} 2026</td><td class="num">${r[2]}</td><td>${pill(r[4],r[3])}</td><td style="text-align:right"><a class="chip" data-act="toast" data-arg="Downloading ${r[0]}.pdf">${svg(I.download,13)} PDF</a></td></tr>`).join('')}
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>`));
+};
+
+/* ---------- Developers & API ---------- */
+VIEWS.developers = (v)=>{
+  const keys=[
+    ['Live · publishable','pk_live_••••7Qx2','Read','good'],
+    ['Live · secret','sk_live_••••a9Fd','Full','good'],
+    ['Test · secret','sk_test_••••0Tz1','Sandbox','muted'],
+  ];
+  const reqs=[
+    ['POST','/v1/subscriptions','201','142ms','2m'],
+    ['POST','/v1/usage_records','200','38ms','2m'],
+    ['GET','/v1/invoices','200','61ms','3m'],
+    ['POST','/v1/customers','201','120ms','5m'],
+    ['POST','/v1/payment_intents','402','210ms','6m'],
+  ];
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Developers & API','REST &amp; GraphQL APIs, webhooks and SDKs — with sandbox mode, idempotency and versioning.',
+      `<button class="btn ghost" data-act="toast" data-arg="Opening API reference">API docs</button>
+       <button class="btn primary" data-act="toast" data-arg="Creating API key…">+ Create key</button>`)}
+    <div class="grid kpis">
+      ${kpi('API requests (24h)','1.84M','+9% vs avg',{trend:9,accent:true})}
+      ${kpi('Success rate','99.92%','2xx/3xx',{trend:0.1})}
+      ${kpi('p95 latency','148ms','all endpoints',{trend:-4})}
+      ${kpi('Webhook delivery','99.7%','retried on failure',{trend:0.2})}
+    </div>
+    <div class="row">
+      <div class="card panel">
+        <div class="panel-head"><h3>API keys</h3><span class="sub">live &amp; test</span><div class="right"><span class="pill ember">Test mode</span></div></div>
+        <div class="table-wrap" style="border:none">
+          <table style="min-width:0"><thead><tr><th>Key</th><th>Token</th><th>Scope</th><th></th></tr></thead>
+          <tbody>${keys.map(k=>`<tr><td class="nm">${k[0]}</td><td class="mono mut">${k[1]}</td><td>${pill(k[3],k[2])}</td><td style="text-align:right"><a class="chip" data-act="toast" data-arg="Rotating key…">Rotate</a></td></tr>`).join('')}</tbody></table>
+        </div>
+        <div class="sec-title">SDKs</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${['Node','Python','Go','Ruby','Java','PHP'].map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+        <div class="note info" style="margin-top:14px">${svg(I.api,15)}<div>All write calls accept an <b>Idempotency-Key</b> for safe retries. Use <code>sk_test_</code> keys against the sandbox; pin the version with the <code>delonix-Version</code> header.</div></div>
+      </div>
+      <div class="card panel">
+        <div class="panel-head"><h3>Recent API requests</h3><span class="sub">live tail</span></div>
+        <div class="table-wrap" style="border:none">
+          <table style="min-width:0"><thead><tr><th>Method</th><th>Endpoint</th><th class="num">Status</th><th class="num">Latency</th><th></th></tr></thead>
+          <tbody>${reqs.map(r=>`<tr><td><span class="pill ${r[0]==='GET'?'info':'ember'}">${r[0]}</span></td><td class="mono mut">${r[1]}</td><td class="num"><span style="color:${r[2].startsWith('2')?'var(--good)':'var(--crit)'}">${r[2]}</span></td><td class="num">${r[3]}</td><td class="mut" style="text-align:right">${r[4]}</td></tr>`).join('')}</tbody></table>
+        </div>
+        <div class="sec-title">Webhooks</div>
+        <div class="gw"><div class="gi" style="background:var(--ember-glow);color:var(--ember-soft)">${svg(I.send,18)}</div><div style="flex:1"><div class="nm">https://hooks.acme.com/delonix</div><div class="mut">invoice.*, subscription.*, payment.* · 14 events</div></div>${pill('good','Healthy')}</div>
+      </div>
+    </div>
+  </div>`));
+};
+
+/* ---------- Integrations ---------- */
+VIEWS.integrations = (v)=>{
+  const cats=[
+    ['CRM',[['Salesforce','#00a1e0','Connected','good'],['HubSpot','#ff7a59','Connected','good']]],
+    ['ERP / General Ledger',[['NetSuite','#2dbd63','Syncing nightly','good'],['SAP','#1f7ad6','Not connected','muted'],['QuickBooks','#2ca01c','Not connected','muted']]],
+    ['Tax',[['Avalara','#ff8a4c','Connected','good'],['Vertex','#5aa9ff','Not connected','muted'],['Stripe Tax','#635bff','Connected','good']]],
+    ['Payments',[['Stripe','#635bff','Primary','good'],['Adyen','#0abf53','EU/APAC','good']]],
+    ['Data warehouse',[['Snowflake','#29b5e8','Streaming','good'],['BigQuery','#4285f4','Not connected','muted']]],
+  ];
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Integrations','Pre-built connectors that sync billing data into the systems your business already runs on.',
+      `<button class="btn primary" data-act="toast" data-arg="Browsing connector marketplace…">Browse marketplace</button>`)}
+    <div class="grid kpis" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+      ${kpi('Active connectors','7','of 24 available',{accent:true})}
+      ${kpi('Records synced (24h)','312K','across systems',{trend:6})}
+      ${kpi('Sync health','100%','no failures',{})}
+      ${kpi('Last GL sync','12m ago','NetSuite',{})}
+    </div>
+    ${cats.map(c=>`<div class="sec-title">${c[0]}</div>
+      <div class="grid cards-3" style="margin-bottom:14px">${c[1].map(g=>`<div class="card gw"><div class="gi" style="background:${g[1]}22;color:${g[1]}">${g[0][0]}</div><div style="flex:1"><div class="nm">${g[0]}</div><div class="mut">${g[2]}</div></div><button class="btn ghost" style="padding:5px 11px" data-act="toast" data-arg="${g[3]==='muted'?'Connecting':'Managing'} ${g[0]}…">${g[3]==='muted'?'Connect':'Manage'}</button></div>`).join('')}</div>`).join('')}
   </div>`));
 };
 
