@@ -643,25 +643,31 @@ VIEWS.dashboard = (v)=>{
 };
 
 /* ---------- Customers ---------- */
-VIEWS.accounts = (v)=>{
-  v.appendChild(el(`<div class="view">
-    ${pageHead('Customers','842 active accounts · $418.4k MRR · 8 enterprise logos shown',
-      `<button class="btn ghost">${svg(I.download,15)} Export CSV</button><button class="btn primary" data-act="toast" data-arg="New customer wizard">+ New customer</button>`)}
-    <div class="toolbar">
-      <div class="tabs"><button class="on">All<span class="ct">842</span></button><button>Enterprise<span class="ct">214</span></button><button>Growth<span class="ct">588</span></button><button>At risk<span class="ct">12</span></button></div>
-      <div class="spacer"></div>
-      <span class="chip">${svg(I.filter,13)} Region</span><span class="chip">${svg(I.filter,13)} Owner</span><span class="chip">${svg(I.filter,13)} Plan</span>
-    </div>
-    <div class="table-wrap">
-      <table><thead><tr><th>Account</th><th>Plan</th><th class="num">Seats</th><th class="num">MRR</th><th>Terms</th><th>Region</th><th>Health</th><th>Owner</th></tr></thead>
-      <tbody>${accounts.map(a=>`<tr data-act="account" data-arg="${a.id}" style="cursor:pointer">
+function acctMatch(a,f){ if(f==='all')return true; if(f==='Enterprise')return a.plan.indexOf('Enterprise')===0; if(f==='Growth')return a.plan==='Growth'; if(f==='At risk')return a.health<70||a.status!=='good'; return true; }
+function acctCount(f){ return accounts.filter(a=>acctMatch(a,f)).length; }
+function acctRow(a){ return `<tr data-act="account" data-arg="${a.id}" style="cursor:pointer">
         <td><div class="acct"><div class="logo-chip" style="background:${colorFor(a.name)}">${initials(a.name)}</div><div><div class="nm">${a.name}</div><div class="mut mono">${a.id} · since ${a.since}</div></div></div></td>
         <td>${pill(a.plan.includes('+')?'ember':'muted',a.plan)}</td>
         <td class="num">${a.seats.toLocaleString()}</td>
         <td class="num">${fmt(a.mrr)}</td>
         <td>${a.terms}</td><td>${a.region}</td>
         <td><div style="display:flex;align-items:center;gap:8px"><div class="bar" style="width:60px"><i style="width:${a.health}%;background:${a.health>80?'var(--good)':a.health>60?'var(--warn)':'var(--crit)'}"></i></div><span class="mut tnum">${a.health}</span></div></td>
-        <td>${a.owner}</td></tr>`).join('')}</tbody></table>
+        <td>${a.owner}</td></tr>`; }
+function acctBody(f){ const r=accounts.filter(a=>acctMatch(a,f)); return r.length?r.map(acctRow).join(''):`<tr><td colspan="8" class="empty">No customers in this segment.</td></tr>`; }
+function setAcctFilter(f,btn){ const b=document.getElementById('acctBody'); if(b)b.innerHTML=acctBody(f); document.querySelectorAll('#acctTabs button').forEach(x=>x.classList.toggle('on',x===btn)); }
+const ACCT_TABS=['all','Enterprise','Growth','At risk'];
+VIEWS.accounts = (v)=>{
+  v.appendChild(el(`<div class="view">
+    ${pageHead('Customers','842 active accounts · $418.4k MRR · 8 enterprise logos shown',
+      `<button class="btn ghost">${svg(I.download,15)} Export CSV</button><button class="btn primary" data-act="toast" data-arg="New customer wizard">+ New customer</button>`)}
+    <div class="toolbar">
+      <div class="tabs" id="acctTabs">${ACCT_TABS.map((f,i)=>`<button class="${i===0?'on':''}" data-act="acctfilter" data-arg="${f}">${f==='all'?'All':f}<span class="ct">${acctCount(f)}</span></button>`).join('')}</div>
+      <div class="spacer"></div>
+      <span class="chip">${svg(I.filter,13)} Region</span><span class="chip">${svg(I.filter,13)} Owner</span><span class="chip">${svg(I.filter,13)} Plan</span>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Account</th><th>Plan</th><th class="num">Seats</th><th class="num">MRR</th><th>Terms</th><th>Region</th><th>Health</th><th>Owner</th></tr></thead>
+      <tbody id="acctBody">${acctBody('all')}</tbody></table>
     </div>
   </div>`));
 };
@@ -732,22 +738,28 @@ VIEWS.catalog = (v)=>{
 };
 
 /* ---------- Invoices ---------- */
+function invMatch(i,f){ return f==='all'||i.slabel===f; }
+function invCount(f){ return invoices.filter(i=>invMatch(i,f)).length; }
+function invRow(i){ return `<tr style="cursor:pointer" data-act="invoice" data-arg="${i.id}">
+        <td class="mono">${i.id}</td><td class="nm">${i.acct}</td><td class="num">${fmt(i.amt)}</td>
+        <td class="mut">${i.issued}</td><td class="mut">${i.due}</td><td>${i.method}</td><td>${pill(i.status,i.slabel)}</td>
+        <td style="text-align:right">${svg('<polyline points="9 18 15 12 9 6"/>',15)}</td></tr>`; }
+function invBody(f){ const r=invoices.filter(i=>invMatch(i,f)); return r.length?r.map(invRow).join(''):`<tr><td colspan="8" class="empty">No ${f==='all'?'':f.toLowerCase()+' '}invoices.</td></tr>`; }
+function setInvFilter(f,btn){ const b=document.getElementById('invBody'); if(b)b.innerHTML=invBody(f); document.querySelectorAll('#invTabs button').forEach(x=>x.classList.toggle('on',x===btn)); }
+const INV_TABS=['all','Open','Overdue','Paid','Draft'];
 VIEWS.invoices = (v)=>{
   const tot = invoices.reduce((s,i)=>s+i.amt,0);
   v.appendChild(el(`<div class="view">
     ${pageHead('Invoices','$${(tot/1000).toFixed(1)}k across ${invoices.length} invoices this period.',
       `<button class="btn ghost">${svg(I.download,15)} Export</button><button class="btn primary" data-act="toast" data-arg="New invoice draft created">+ New invoice</button>`)}
     <div class="toolbar">
-      <div class="tabs"><button class="on">All<span class="ct">${invoices.length}</span></button><button>Open<span class="ct">2</span></button><button>Overdue<span class="ct">3</span></button><button>Paid<span class="ct">2</span></button><button>Draft<span class="ct">1</span></button></div>
+      <div class="tabs" id="invTabs">${INV_TABS.map((f,i)=>`<button class="${i===0?'on':''}" data-act="invfilter" data-arg="${f}">${f==='all'?'All':f}<span class="ct">${invCount(f)}</span></button>`).join('')}</div>
       <div class="spacer"></div>
       <span class="chip">${svg(I.filter,13)} Date range</span><span class="chip">${svg(I.filter,13)} Account</span>
     </div>
     <div class="table-wrap">
       <table><thead><tr><th>Invoice</th><th>Account</th><th class="num">Amount</th><th>Issued</th><th>Due</th><th>Method</th><th>Status</th><th></th></tr></thead>
-      <tbody>${invoices.map(i=>`<tr style="cursor:pointer" data-act="invoice" data-arg="${i.id}">
-        <td class="mono">${i.id}</td><td class="nm">${i.acct}</td><td class="num">${fmt(i.amt)}</td>
-        <td class="mut">${i.issued}</td><td class="mut">${i.due}</td><td>${i.method}</td><td>${pill(i.status,i.slabel)}</td>
-        <td style="text-align:right">${svg('<polyline points="9 18 15 12 9 6"/>',15)}</td></tr>`).join('')}</tbody></table>
+      <tbody id="invBody">${invBody('all')}</tbody></table>
     </div>
   </div>`));
 };
@@ -1712,6 +1724,8 @@ document.addEventListener('click',e=>{
   if(a==='account') return openAccount(arg);
   if(a==='revsched') return openRevSchedule(arg);
   if(a==='lens') return setDashLens(arg, t);
+  if(a==='invfilter') return setInvFilter(arg, t);
+  if(a==='acctfilter') return setAcctFilter(arg, t);
   if(a==='toast') return toast(arg);
 });
 const _lf=document.getElementById('loginForm');
