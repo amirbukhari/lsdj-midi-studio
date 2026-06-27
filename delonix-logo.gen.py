@@ -77,40 +77,50 @@ for a in (0.80, 1.05, 1.30, 1.84, 2.10, 2.34):
 root_paths.append(f"M{fmt(base[0])},{fmt(base[1])} L713,590 L713,624")
 root_nodes.append((713, 624))
 
-# ---------- PHOENIX WING (right, orange flame feathers) ----------
-def feather(bx, by, tx, ty, w, curve):
-    mx, my = (bx+tx)/2, (by+ty)/2
+# ---------- PHOENIX WING (right, overlapping flame feathers) ----------
+def flame(bx, by, tx, ty, w, curl):
+    """A tapered feather with a bulging leading edge curving to a clean pointed tip."""
     dx, dy = tx-bx, ty-by
     L = math.hypot(dx, dy) or 1
-    nx, ny = -dy/L, dx/L
-    # asymmetric: top edge bows more for a flame look
-    c1x, c1y = mx + nx*w + dx*curve*0.15, my + ny*w + dy*curve*0.15
-    c2x, c2y = mx - nx*(w*0.55), my - ny*(w*0.55)
-    return (f"M{fmt(bx)},{fmt(by)} Q{fmt(c1x)},{fmt(c1y)} {fmt(tx)},{fmt(ty)} "
-            f"Q{fmt(c2x)},{fmt(c2y)} {fmt(bx)},{fmt(by)} Z")
+    ux, uy = dx/L, dy/L          # along feather
+    nx, ny = -uy, ux             # perpendicular (leading-edge side = +n)
+    # leading edge: bows out, then sweeps up into the tip with an upward curl
+    l1x, l1y = bx + ux*L*0.28 + nx*w,        by + uy*L*0.28 + ny*w
+    l2x, l2y = bx + ux*L*0.78 + nx*w*0.42,   by + uy*L*0.78 + ny*w*0.42 - curl
+    # trailing edge: sweeps back to base with a gentle inward scoop
+    t1x, t1y = bx + ux*L*0.55 - nx*w*0.16,   by + uy*L*0.55 - ny*w*0.16
+    t2x, t2y = bx + ux*L*0.16 - nx*w*0.06,   by + uy*L*0.16 - ny*w*0.06
+    return (f"M{fmt(bx)},{fmt(by)} "
+            f"C{fmt(l1x)},{fmt(l1y)} {fmt(l2x)},{fmt(l2y)} {fmt(tx)},{fmt(ty)} "
+            f"C{fmt(t1x)},{fmt(t1y)} {fmt(t2x)},{fmt(t2y)} {fmt(bx)},{fmt(by)} Z")
 
-pivot = (728, 415)
-# long sweeping flame feathers fanning up and to the right (strong upward curl)
-feather_specs = [
-    # (tipx, tipy, width, curve)
-    (806, 168, 24, 1.6),
-    (852, 198, 29, 1.5),
-    (898, 240, 31, 1.4),
-    (930, 296, 31, 1.25),
-    (938, 356, 29, 1.1),
-    (918, 408, 24, 0.95),
-    (872, 446, 20, 0.8),
-    (820, 462, 16, 0.7),
+# Wide overlapping feathers fanning from a common shoulder; drawn back-to-front
+# so each tucks under the next — together they tile into a gapless flame wing.
+shoulder = (728, 392)
+attach = [   # (tip_x, tip_y, width, curl)
+    (806, 462, 30, 6),     # lowest / most horizontal
+    (878, 446, 34, 12),
+    (930, 404, 38, 18),
+    (952, 344, 40, 24),    # mid, longest
+    (944, 282, 40, 28),
+    (910, 226, 38, 30),
+    (858, 188, 34, 28),
+    (804, 168, 28, 24),    # top, most vertical
+    (760, 162, 22, 18),
 ]
-for tx, ty, w, c in feather_specs:
-    feathers.append(feather(pivot[0], pivot[1], tx, ty, w, c))
-# small inner feathers near the body
-for tx, ty, w in [(792, 286, 10), (800, 330, 10), (786, 232, 9)]:
-    feathers.append(feather(pivot[0]+2, pivot[1]-14, tx, ty, w, 1.0))
+# thin connective membrane hugging the shoulder so the roots converge cleanly
+wing_base = ("M724,360 C724,330 726,308 728,300 "
+             "C742,300 754,318 756,360 "
+             "C758,404 748,440 730,452 "
+             "C720,420 722,392 724,360 Z")
+# slight vertical offset of bases so feathers don't all pinch one point
+for i, (tx, ty, w, c) in enumerate(attach):
+    by = shoulder[1] + (i - len(attach)/2) * 4
+    feathers.append(flame(shoulder[0], by, tx, ty, w, c))
 
 # head plumes (three thin orange/white streamers up from the head)
 plumes = []
-hx, hy = 732, 306
+hx, hy = 744, 286
 # three plumes that splay outward and curl back, tapering to a point
 for sway, dx, dy in [(-26, -34, -150), (-10, 4, -168), (16, 40, -150)]:
     c1x, c1y = hx + sway, hy - 52          # initial outward sway
@@ -125,22 +135,29 @@ body = (
     "C720,366 706,344 712,322 "        # chest/neck
     "C716,308 724,300 716,300 "        # to head
 )
-# A filled slender body silhouette: trunk -> slim curving neck -> small head
+# Filled phoenix body with motion: tail base -> forward chest -> arched neck -> head
+# Drawn as a single flowing silhouette (left edge = breast, right edge = back).
 body_fill = (
-    "M704,520 "                        # base left
-    "C700,470 706,430 712,398 "        # trunk rising
-    "C705,372 708,348 720,330 "        # neck curves up-right then back
-    "C726,320 722,310 730,306 "        # to nape
-    "C742,303 746,315 738,323 "        # head crown
-    "C733,329 726,330 721,333 "        # under-head
-    "C719,352 717,376 721,398 "        # back of neck down
-    "C726,432 728,472 722,520 "        # trunk right side
+    "M718,522 "                        # tail base, right
+    "C700,486 690,452 696,416 "        # back lower, sweeping up
+    "C699,398 706,386 700,372 "        # toward breast
+    "C694,356 692,340 700,326 "        # breast pushes forward (left)
+    "C705,316 712,312 716,304 "        # up the front of the neck
+    "C719,298 716,290 721,286 "        # throat to chin
+    "C725,280 736,278 742,282 "        # head: rises up-right
+    "C751,287 752,298 746,304 "        # crown / back of head
+    "C742,308 735,308 731,312 "        # nape
+    "C726,322 729,340 726,356 "        # back of neck descending
+    "C732,378 730,396 724,414 "        # back of body
+    "C730,452 732,488 726,522 "        # back lower to tail
     "Z"
 )
-# beak (small triangle pointing left from head)
-beak = "M722,329 L704,332 L723,338 Z"
+# open beak pointing up-left from the head
+beak = "M721,289 L705,280 L722,296 Z"
+# small crest tuft at the back of the head
+crest = "M746,288 C758,278 766,280 770,272 C764,286 757,292 748,296 Z"
 # head eye
-eye = (730, 318, 2.0)
+eye = (732, 294, 2.0)
 
 def circle(cx, cy, r, **kw):
     a = " ".join(f'{k.replace("_","-")}="{v}"' for k, v in kw.items())
@@ -197,10 +214,13 @@ out.append('</g>')
 # emblem group with subtle glow
 out.append('<g id="emblem" filter="url(#glow)">')
 
-# wing (behind body)
-out.append('<g id="wing" fill="url(#wing)">')
-for f in feathers:
-    out.append(f'<path d="{f}"/>')
+# wing (behind body): dark membrane base + overlapping flame feathers
+out.append('<g id="wing">')
+out.append(f'<path d="{wing_base}" fill="#8A2706"/>')
+for i, f in enumerate(feathers):
+    # alternate tone so overlapping feathers read as distinct licks of flame
+    fill = "url(#wing)" if i % 2 == 0 else ORANGE
+    out.append(f'<path d="{f}" fill="{fill}"/>')
 out.append('</g>')
 
 # tree branches
@@ -232,6 +252,7 @@ for d in plumes:
 out.append('</g>')
 
 # phoenix body
+out.append(f'<path id="crest" d="{crest}" fill="{ORANGE_HI}"/>')
 out.append(f'<path id="body" d="{body_fill}" fill="url(#body)"/>')
 out.append(f'<path id="beak" d="{beak}" fill="{ORANGE_HI}"/>')
 out.append(circle(eye[0], eye[1], eye[2], fill="#000000"))
