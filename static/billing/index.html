@@ -629,7 +629,10 @@ const I = {
   ar:'<path d="M3 3v18h18"/><path d="M7 16l4-4 3 3 5-6"/><path d="M9 3v4M15 3v3"/>',
   portal:'<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="8" x2="22" y2="8"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
   api:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
-  plug:'<path d="M9 2v6M15 2v6"/><path d="M7 8h10v3a5 5 0 0 1-10 0z"/><path d="M12 16v6"/>'
+  plug:'<path d="M9 2v6M15 2v6"/><path d="M7 8h10v3a5 5 0 0 1-10 0z"/><path d="M12 16v6"/>',
+  ai:'<path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.38-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1a7 7 0 0 1-7 7H8a7 7 0 0 1-7-7H0a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 10 4a2 2 0 0 1 2-2z"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/>',
+  calc:'<rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/>',
+  entity2:'<rect x="2" y="7" width="9" height="14" rx="1"/><rect x="13" y="7" width="9" height="7" rx="1"/><rect x="13" y="17" width="9" height="4" rx="1"/><line x1="6" y1="2" x2="6" y2="7"/><line x1="17" y1="2" x2="17" y2="7"/>'
 ,
   bu:'<rect x="3" y="8" width="5" height="13"/><rect x="9.5" y="3" width="5" height="18"/><rect x="16" y="11" width="5" height="10"/>',
   entity:'<circle cx="12" cy="8" r="4"/><path d="M4 20v-2a8 8 0 0 1 16 0v2"/><line x1="12" y1="14" x2="12" y2="20"/>',
@@ -646,11 +649,13 @@ const NAV = [
   {group:'Overview', items:[
     {id:'dashboard', label:'Dashboard', icon:'dash'},
     {id:'reports', label:'Reports & Analytics', icon:'reports'},
+    {id:'aiinsights', label:'AI Insights', icon:'ai'},
   ]},
   {group:'Revenue', items:[
     {id:'accounts', label:'Customers', icon:'accounts'},
     {id:'subscriptions', label:'Subscriptions', icon:'subs'},
     {id:'catalog', label:'Products & Plans', icon:'catalog'},
+    {id:'calculator', label:'Pricing Calculator', icon:'calc'},
     {id:'quotes', label:'Quotes & Contracts', icon:'quotes', badge:'4', muted:true},
     {id:'usage', label:'Usage & Metering', icon:'usage'},
   ]},
@@ -673,6 +678,7 @@ const NAV = [
   {group:'Organization', items:[
     {id:'bizunits',    label:'Business Units',        icon:'bu'},
     {id:'legalentity', label:'Legal Entities',         icon:'entity'},
+    {id:'customentities', label:'Custom Entities',     icon:'entity2'},
     {id:'migration',   label:'Migration & Source Systems', icon:'migration'},
   ]},
   {group:'Platform', items:[
@@ -4218,6 +4224,349 @@ VIEWS.settings = (v)=>{
 };
 
 /* ============================================================
+   AI Insights view
+   ============================================================ */
+VIEWS.aiinsights = (v)=>{
+  v.appendChild(el(`<div class="view">
+  ${pageHead('AI Insights','Natural language analytics, anomaly detection and revenue forecasting — powered by Ember AI',
+    `<button class="btn ghost" data-act="toast" data-arg="Scheduling weekly AI digest…">Schedule digest</button>`
+  )}
+    <div style="margin-bottom:18px;display:flex;gap:10px;align-items:center">
+      <div style="flex:1;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+        ${svg(I.ai,16)}<input class="finput" style="border:none;background:transparent;flex:1;font-size:14px;padding:0" placeholder="Ask your data… e.g. "Which cohorts have net retention above 110%?"" oninput="filterAIQuery(this.value)">
+        <button class="btn primary" style="padding:5px 14px;font-size:13px" data-act="aiquery">Ask Ember</button>
+      </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px">
+      ${[
+        {label:'Anomalies detected', val:'4', sub:'Last 7 days', color:'var(--crit)', icon:'dunning'},
+        {label:'Forecast accuracy', val:'94.2%', sub:'vs actual last quarter', color:'var(--ok)', icon:'reports'},
+        {label:'AI recommendations', val:'12', sub:'Revenue-impacting', color:'var(--ember)', icon:'ai'},
+      ].map(k=>`
+        <div class="kpi-card" style="cursor:default">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="kl">${k.label}</div>
+            <div style="color:${k.color};opacity:.7">${svg(I[k.icon],16)}</div>
+          </div>
+          <div class="kv" style="font-size:26px;font-weight:700;color:${k.color}">${k.val}</div>
+          <div class="ks">${k.sub}</div>
+        </div>`).join('')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card panel">
+        <div class="panel-head"><h3>${svg(I.dunning,14)} Anomalies</h3><span class="pill crit">4 active</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          ${[
+            {sev:'crit', title:'Churn spike — Cobalt Robotics segment', detail:'Gross churn 4.2% this week vs 1.1% baseline. 3 Enterprise accounts flagged for cancellation intent.', act:'accountseg'},
+            {sev:'warn', title:'Invoice aging outlier — Helios Manufacturing', detail:'DSO 68 days vs account average of 41. Pattern consistent with payment dispute — recommend escalation.', act:'colldetail'},
+            {sev:'warn', title:'Usage overrun — API tier mismatch', detail:'14 accounts consuming >2× plan limit for 3+ weeks. Estimated missed revenue: $18,400/mo.', act:'usage'},
+            {sev:'info', title:'MRR bridge discrepancy', detail:'$2,100 gap between recognized MRR and subscription system. Likely draft invoice not finalized.', act:'invoices'},
+          ].map(a=>`
+            <div class="act" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border)" data-act="route" data-arg="${a.act}">
+              <div style="margin-right:10px">${a.sev==='crit'?pill('crit','Critical'):a.sev==='warn'?pill('warn','Warning'):pill('info','Info')}</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;margin-bottom:2px">${a.title}</div>
+                <div class="mut" style="font-size:12px">${a.detail}</div>
+              </div>
+              <div style="color:var(--text-3)">${svg(I.migration,14)}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-head"><h3>${svg(I.reports,14)} Revenue forecast</h3><span class="sub">12-month · 90% CI</span></div>
+        <canvas id="forecastChart" height="180" style="width:100%;margin-bottom:12px"></canvas>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px">
+          ${[['Jul 2026 MRR','$436k','+4.2%','ok'],['ARR exit (Dec)','$5.61M','+11.7%','ok'],['Churn risk','$42k','↑ flagged','warn']].map(r=>`
+            <div style="padding:8px;background:var(--surface);border-radius:6px">
+              <div class="mut">${r[0]}</div>
+              <div style="font-weight:700;font-size:14px;color:var(--${r[3]==='ok'?'ok':'warn'})">${r[1]}</div>
+              <div class="mut" style="font-size:11px">${r[2]}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+      <div class="card panel">
+        <div class="panel-head"><h3>${svg(I.ai,14)} Ember recommendations</h3><span class="sub">Revenue-impacting · updated Jun 28</span></div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          ${[
+            {tag:'Expansion',  tagc:'ok',   title:'Upgrade 14 usage-overrun accounts to Business+', impact:'+$18,400 MRR', effort:'Low — automated email sequence ready', action:'newsub'},
+            {tag:'Retention',  tagc:'warn', title:'Proactive outreach for 3 at-risk Enterprise accounts', impact:'Protect $287k ARR', effort:'Medium — CSM assignment recommended', action:'dunning'},
+            {tag:'Pricing',    tagc:'info', title:'Introduce API overage tier for top 8 API consumers', impact:'+$9,200 MRR', effort:'Low — update plan entitlements', action:'catalog'},
+            {tag:'Efficiency', tagc:'muted',title:'Consolidate 38 stale draft invoices from May period', impact:'Clean close cycle', effort:'Low — batch finalize available', action:'invoices'},
+            {tag:'Expansion',  tagc:'ok',   title:'Renewal risk: 7 Enterprise contracts expire in 90 days', impact:'$487k ARR at risk', effort:'High — NDA + pricing review required', action:'quotes'},
+          ].map(r=>`
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer" data-act="route" data-arg="${r.action}">
+              <div style="min-width:72px">${pill(r.tagc, r.tag)}</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;margin-bottom:2px">${r.title}</div>
+                <div class="mut" style="font-size:12px">${r.impact} · ${r.effort}</div>
+              </div>
+              <button class="btn ghost" style="font-size:11px;padding:3px 9px;white-space:nowrap" data-act="route" data-arg="${r.action}">Review →</button>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-head"><h3>${svg(I.ai,14)} Recent queries</h3></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${[
+            'Show me all accounts with NRR > 115% in Q2',
+            'Which plans have the highest expansion rate?',
+            'Compare churn by acquisition cohort 2023 vs 2024',
+            'MRR movement bridge last 6 months by BU',
+            'Top 10 accounts by expansion revenue YTD',
+          ].map(q=>`
+            <div style="padding:8px 10px;background:var(--surface);border-radius:6px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:8px" data-act="aiquery" data-arg="${q}">
+              ${svg(I.ai,13)}<span class="mut">${q}</span>
+            </div>`).join('')}
+        </div>
+        <button class="btn ghost" style="width:100%;margin-top:10px;justify-content:center" data-act="toast" data-arg="Opening AI query history">View all queries</button>
+      </div>
+    </div>
+  </div>`));
+  // draw forecast sparkline
+  setTimeout(()=>{
+    const c=document.getElementById('forecastChart'); if(!c) return;
+    const ctx=c.getContext('2d'); const W=c.offsetWidth||400; c.width=W; c.height=180;
+    const pts=[418,424,430,436,440,446,453,459,464,470,476,483];
+    const mn=380,mx=520,h=160,pad=20;
+    const x=(i)=>pad+(i/(pts.length-1))*(W-2*pad);
+    const y=(v)=>h+pad-((v-mn)/(mx-mn))*h;
+    // CI band
+    ctx.beginPath();
+    pts.forEach((v,i)=>{ const lo=v-i*2.5,hi=v+i*2.5; if(i===0) ctx.moveTo(x(i),y(hi)); else ctx.lineTo(x(i),y(hi)); });
+    [...pts].reverse().forEach((v,i)=>{ const ri=pts.length-1-i; ctx.lineTo(x(ri),y(v-ri*2.5)); });
+    ctx.closePath(); ctx.fillStyle='rgba(255,90,31,0.1)'; ctx.fill();
+    // actual / forecast line
+    ctx.beginPath(); pts.forEach((v,i)=>{ i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v)); });
+    ctx.strokeStyle='var(--ember,#ff5a1f)'; ctx.lineWidth=2; ctx.stroke();
+    // month labels
+    ctx.fillStyle='#888'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'].forEach((m,i)=>ctx.fillText(m,x(i),180));
+  },100);
+};
+
+/* ============================================================
+   Pricing Calculator Builder view
+   ============================================================ */
+VIEWS.calculator = (v)=>{
+  const CALCS = [
+    {id:'CALC-001',name:'Enterprise ROI Calculator',status:'published',views:1284,leads:87,lastEdit:'Jun 22',url:'calc.delonix.io/enterprise-roi'},
+    {id:'CALC-002',name:'API Pricing Estimator',status:'published',views:632,leads:41,lastEdit:'Jun 15',url:'calc.delonix.io/api-pricing'},
+    {id:'CALC-003',name:'TCO vs Legacy System',status:'draft',views:0,leads:0,lastEdit:'Jun 27',url:'—'},
+    {id:'CALC-004',name:'Multi-Site Property Manager',status:'published',views:319,leads:22,lastEdit:'May 30',url:'calc.delonix.io/property'},
+  ];
+  v.appendChild(el(`<div class="view">
+  ${pageHead('Pricing Calculator','Build and embed interactive pricing calculators for sales, website and customer portal',
+    `<button class="btn ghost" data-act="toast" data-arg="Opening template library…">Browse templates</button>
+     <button class="btn primary" data-act="newcalculator">+ New calculator</button>`
+  )}
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:18px;display:none">
+      <button class="btn ghost" data-act="toast" data-arg="Opening template library…">Browse templates</button>
+      <button class="btn primary" data-act="newcalculator">+ New calculator</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      ${CALCS.map(c=>`
+        <div class="card" style="padding:18px;cursor:pointer" data-act="editcalculator" data-arg="${c.id}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-size:15px;font-weight:650;margin-bottom:4px">${c.name}</div>
+              <div class="mut" style="font-size:12px">${c.id} · edited ${c.lastEdit}</div>
+            </div>
+            ${c.status==='published'?pill('ok','Published'):pill('muted','Draft')}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+            <div style="background:var(--surface);padding:8px;border-radius:6px;text-align:center">
+              <div style="font-size:18px;font-weight:700">${c.views.toLocaleString()}</div>
+              <div class="mut" style="font-size:11px">Views</div>
+            </div>
+            <div style="background:var(--surface);padding:8px;border-radius:6px;text-align:center">
+              <div style="font-size:18px;font-weight:700;color:var(--ok)">${c.leads}</div>
+              <div class="mut" style="font-size:11px">Leads</div>
+            </div>
+            <div style="background:var(--surface);padding:8px;border-radius:6px;text-align:center">
+              <div style="font-size:18px;font-weight:700">${c.leads&&c.views?Math.round(c.leads/c.views*100):0}%</div>
+              <div class="mut" style="font-size:11px">Conversion</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost" style="flex:1;justify-content:center;font-size:12px" data-act="editcalculator" data-arg="${c.id}">${svg(I.settings,13)} Edit</button>
+            ${c.status==='published'?`<button class="btn ghost" style="flex:1;justify-content:center;font-size:12px" data-act="toast" data-arg="Copied embed code for ${c.name}">${svg(I.api,13)} Embed</button>`:''}
+            <button class="btn ghost" style="flex:1;justify-content:center;font-size:12px" data-act="toast" data-arg="Opening preview for ${c.name}">${svg(I.portal,13)} Preview</button>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="card panel">
+      <div class="panel-head"><h3>Calculator builder</h3><span class="sub">Live preview — Enterprise ROI Calculator</span></div>
+      <div style="display:grid;grid-template-columns:280px 1fr;gap:0;min-height:400px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <div style="background:var(--surface);border-right:1px solid var(--border);padding:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.08em;margin-bottom:10px">INPUTS</div>
+          ${[
+            {label:'Number of units', type:'slider', val:'120', min:'10', max:'500', step:'10'},
+            {label:'Average monthly rent', type:'number', val:'2,400', prefix:'$'},
+            {label:'Current software cost', type:'number', val:'3,200', prefix:'$', suffix:'/mo'},
+            {label:'Staff time on billing', type:'slider', val:'8', min:'1', max:'40', suffix:'hrs/wk'},
+            {label:'Payment processing fee', type:'select', val:'2.9%', opts:['1.5%','2.2%','2.9%','Custom']},
+          ].map(f=>`
+            <div class="fg" style="margin-bottom:10px">
+              <label style="font-size:12px;font-weight:600;display:flex;justify-content:space-between">
+                ${f.label}
+                <span class="mut" style="font-size:11px;cursor:pointer" data-act="toast" data-arg="Field settings for ${f.label}">⚙</span>
+              </label>
+              ${f.type==='slider'?`
+                <input type="range" class="finput" min="${f.min}" max="${f.max}" step="${f.step}" value="${f.val}" style="padding:4px 0;height:auto">
+                <div style="font-size:12px;color:var(--ember);font-weight:600">${f.prefix||''}${f.val}${f.suffix||''}</div>
+              `:f.type==='select'?`
+                <select class="finput" style="font-size:12px">${f.opts.map(o=>`<option${o===f.val?' selected':''}>${o}</option>`).join('')}</select>
+              `:`
+                <div style="display:flex;align-items:center;gap:4px">
+                  ${f.prefix?`<span class="mut">${f.prefix}</span>`:''}
+                  <input class="finput" value="${f.val}" style="font-size:13px">
+                  ${f.suffix?`<span class="mut">${f.suffix}</span>`:''}
+                </div>`}
+            </div>`).join('')}
+          <button class="btn ghost" style="width:100%;justify-content:center;font-size:12px;margin-top:6px" data-act="toast" data-arg="Add input field dialog opened">+ Add input field</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.08em">LIVE RESULTS PREVIEW</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            ${[
+              {label:'Annual savings', val:'$147,600', color:'var(--ok)', sub:'vs current stack'},
+              {label:'ROI', val:'312%', color:'var(--ember)', sub:'year one'},
+              {label:'Payback period', val:'3.8 mo', color:'var(--ok)', sub:'fully loaded'},
+            ].map(k=>`
+              <div style="background:var(--surface);padding:14px;border-radius:8px;text-align:center">
+                <div style="font-size:22px;font-weight:700;color:${k.color}">${k.val}</div>
+                <div style="font-size:12px;font-weight:600;margin:2px 0">${k.label}</div>
+                <div class="mut" style="font-size:11px">${k.sub}</div>
+              </div>`).join('')}
+          </div>
+          <div style="background:var(--surface);padding:14px;border-radius:8px">
+            <div style="font-size:12px;font-weight:700;margin-bottom:10px">5-YEAR VALUE BREAKDOWN</div>
+            ${[['Billing automation savings','$61,200'],['Reduced payment failures','$28,400'],['Staff time recaptured','$47,040'],['Faster collections (DSO −12 days)','$18,200'],['Overage & expansion revenue','$22,800']].map(r=>`
+              <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:13px">
+                <span>${r[0]}</span><span style="font-weight:600;color:var(--ok)">${r[1]}</span>
+              </div>`).join('')}
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end">
+            <button class="btn ghost" data-act="toast" data-arg="Formula editor opened">Edit formulas</button>
+            <button class="btn ghost" data-act="toast" data-arg="Copied embed code">Copy embed</button>
+            <button class="btn primary" data-act="toast" data-arg="Calculator published to calc.delonix.io/enterprise-roi">Publish changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`));
+};
+
+/* ============================================================
+   Custom Entities view
+   ============================================================ */
+VIEWS.customentities = (v)=>{
+  const ENTITIES = [
+    {id:'CE-001',name:'Property',icon:'🏢',fields:14,records:312,system:false,desc:'Multi-unit residential or commercial property with units, owners and billing contacts'},
+    {id:'CE-002',name:'Contract',icon:'📄',fields:11,records:847,system:false,desc:'Custom contract object linked to Account and Subscription with legal terms and obligations'},
+    {id:'CE-003',name:'Ownership Group',icon:'👥',fields:8,records:94,system:false,desc:'Portfolio entity grouping multiple Properties and Accounts under a single billing hierarchy'},
+    {id:'CE-004',name:'Cost Center',icon:'💰',fields:6,records:28,system:true,desc:'System-level GL cost allocation object — read-only from billing, write via GL sync'},
+  ];
+  const FIELDS = [
+    {name:'property_id',type:'Text',required:true,indexed:true,system:true,display:'Property ID'},
+    {name:'owner_name',type:'Text',required:true,indexed:false,system:false,display:'Owner name'},
+    {name:'unit_count',type:'Number',required:true,indexed:false,system:false,display:'Unit count'},
+    {name:'property_class',type:'Dropdown',required:false,indexed:true,system:false,display:'Property class',opts:'Class A,Class B,Class C,Mixed-use'},
+    {name:'billing_contact',type:'Relation → Contact',required:false,indexed:false,system:false,display:'Billing contact'},
+    {name:'management_company',type:'Relation → Account',required:false,indexed:true,system:false,display:'Management company'},
+    {name:'go_live_date',type:'Date',required:false,indexed:false,system:false,display:'Go-live date'},
+    {name:'annual_revenue',type:'Currency',required:false,indexed:false,system:false,display:'Annual revenue'},
+    {name:'portal_enabled',type:'Boolean',required:false,indexed:false,system:false,display:'Portal enabled'},
+  ];
+  v.appendChild(el(`<div class="view">
+  ${pageHead('Custom Entities','Define custom object types, fields and relationships to extend the billing data model',
+    `<button class="btn primary" data-act="newentity">+ New entity</button>`
+  )}
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:16px">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:var(--text-3);letter-spacing:.07em">ENTITY TYPES</div>
+          <button class="btn ghost" style="font-size:11px;padding:3px 9px" data-act="newentity">+ New</button>
+        </div>
+        ${ENTITIES.map((e,i)=>`
+          <div class="nav-item${i===0?' active':''}" style="margin-bottom:2px;cursor:pointer" data-act="toast" data-arg="Switched to ${e.name} entity">
+            <span style="font-size:16px">${e.icon}</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">${e.name}</div>
+              <div class="mut" style="font-size:11px">${e.fields} fields · ${e.records.toLocaleString()} records</div>
+            </div>
+            ${e.system?`<span class="pill muted" style="font-size:10px">system</span>`:''}
+          </div>`).join('')}
+
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.07em;margin-bottom:8px">STANDARD OBJECTS</div>
+          ${['Account','Subscription','Invoice','Contact','Product','Payment'].map(o=>`
+            <div style="padding:7px 10px;font-size:12.5px;color:var(--text-2);display:flex;align-items:center;gap:8px">
+              <span class="pill muted" style="font-size:10px">read-only</span>${o}
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div>
+        <div class="card panel" style="margin-bottom:14px">
+          <div class="panel-head">
+            <div><h3>🏢 Property</h3><div class="sub">Custom entity · ${FIELDS.length} fields · 312 records</div></div>
+            <div class="right" style="gap:8px">
+              <button class="btn ghost" style="font-size:12px" data-act="toast" data-arg="Exporting Property schema as JSON">Export schema</button>
+              <button class="btn primary" style="font-size:12px" data-act="newfield">+ Add field</button>
+            </div>
+          </div>
+          <div class="mut" style="font-size:13px;margin-bottom:14px">${ENTITIES[0].desc}</div>
+
+          <table class="tbl" style="width:100%">
+            <thead><tr><th>Field name</th><th>API key</th><th>Type</th><th>Required</th><th>Indexed</th><th></th></tr></thead>
+            <tbody>
+              ${FIELDS.map(f=>`
+                <tr>
+                  <td style="font-weight:600">${f.display}</td>
+                  <td><code class="mono" style="font-size:11.5px;background:var(--surface);padding:2px 6px;border-radius:4px">${f.name}</code></td>
+                  <td><span class="pill muted" style="font-size:11px">${f.type}</span></td>
+                  <td>${f.required?`<span style="color:var(--ok)">${svg(I.check,13)}</span>`:'<span class="mut">—</span>'}</td>
+                  <td>${f.indexed?`<span style="color:var(--ok)">${svg(I.check,13)}</span>`:'<span class="mut">—</span>'}</td>
+                  <td>${f.system?'':`<button class="btn ghost" style="font-size:11px;padding:2px 8px" data-act="editfield" data-arg="${f.name}">Edit</button>`}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card panel">
+          <div class="panel-head"><h3>Relationships</h3><span class="sub">Property ↔ other objects</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            ${[
+              {from:'Property',to:'Account',type:'Many → One',label:'Managed by',field:'management_company'},
+              {from:'Property',to:'Subscription',type:'One → Many',label:'Has subscriptions',field:'(via account)'},
+              {from:'Property',to:'Ownership Group',type:'Many → One',label:'Belongs to',field:'ownership_group_id'},
+              {from:'Property',to:'Contact',type:'Many → One',label:'Billing contact',field:'billing_contact'},
+              {from:'Property',to:'Invoice',type:'One → Many',label:'Billed on',field:'(via account)'},
+              {from:'Property',to:'Cost Center',type:'Many → One',label:'GL allocation',field:'cost_center_id'},
+            ].map(r=>`
+              <div style="background:var(--surface);padding:10px;border-radius:7px;font-size:12px">
+                <div style="font-weight:700;margin-bottom:4px">${r.label}</div>
+                <div class="mut">${r.from} → ${r.to}</div>
+                <div class="mut">${r.type}</div>
+                <code class="mono" style="font-size:10.5px;color:var(--text-3)">${r.field}</code>
+              </div>`).join('')}
+          </div>
+          <button class="btn ghost" style="margin-top:12px;font-size:12px" data-act="toast" data-arg="Add relationship dialog opened">+ Add relationship</button>
+        </div>
+      </div>
+    </div>
+  </div>`));
+};
+
+/* ============================================================
    Drawers (detail panels)
    ============================================================ */
 function openDrawer(titleOrHtml, body){
@@ -4499,6 +4848,12 @@ document.addEventListener('click',e=>{
         if(a==='rotatekey') return openRotateKey(arg);
         if(a==='newbizunit') return openNewBizUnit();
         if(a==='newlegalentity') return openNewLegalEntity();
+        if(a==='aiquery') return openAIQuery(arg);
+        if(a==='newcalculator') return openNewCalculator();
+        if(a==='editcalculator') return openEditCalculator(arg);
+        if(a==='newentity') return openNewEntity();
+        if(a==='newfield') return openNewField();
+        if(a==='editfield') return openEditField(arg);
 });
 const _lf=document.getElementById('loginForm');
 if(_lf) _lf.addEventListener('submit',e=>{ e.preventDefault(); enterApp(e); });
@@ -6416,6 +6771,140 @@ function openManualMatch(ref){
   `);
 }
 
+/* ===== AI / CALCULATOR / CUSTOM ENTITY DRAWERS ===== */
+
+function openAIQuery(q){
+  openDrawer('Ember AI — Query Results', `
+    <div style="background:var(--surface);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;display:flex;align-items:flex-start;gap:10px">
+      ${svg(I.ai,15)}<span class="mut">${q||'Which cohorts have net retention above 110%?'}</span>
+    </div>
+    <div style="font-size:13px;line-height:1.7;margin-bottom:16px">
+      <p><strong>3 cohorts</strong> show net revenue retention above 110% in the trailing 12 months:</p>
+      <table class="tbl" style="width:100%;margin-top:8px">
+        <thead><tr><th>Cohort</th><th>NRR</th><th>Accounts</th><th>Avg MRR</th><th>Trend</th></tr></thead>
+        <tbody>
+          <tr><td>Q1 2023 · Enterprise</td><td style="color:var(--ok);font-weight:700">118%</td><td>24</td><td>$9,200</td><td style="color:var(--ok)">↑ +2pp QoQ</td></tr>
+          <tr><td>Q3 2023 · Enterprise+</td><td style="color:var(--ok);font-weight:700">115%</td><td>12</td><td>$14,800</td><td style="color:var(--ok)">↑ +1pp QoQ</td></tr>
+          <tr><td>Q2 2022 · Business+</td><td style="color:var(--ok);font-weight:700">112%</td><td>38</td><td>$3,900</td><td class="mut">→ flat</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px" class="mut">Expansion revenue is the primary driver in all three cohorts. Q1 2023 Enterprise shows the highest seat expansion rate (avg 1.4 seats/account/quarter).</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      ${['Show expansion breakdown','Chart over time','Export to CSV','Add to report'].map(s=>`
+        <button class="btn ghost" style="font-size:12px" data-act="toast" data-arg="${s} — ${q||'NRR query'}">${s}</button>`).join('')}
+    </div>
+    <div class="form-actions">
+      <button class="btn primary" data-act="toast" data-arg="Report created from AI query">Save as report</button>
+      <button class="btn ghost" onclick="closeDrawer()">Close</button>
+    </div>
+  `);
+}
+
+function openNewCalculator(){
+  openDrawer('New Pricing Calculator', `
+    <div class="form-grid" style="grid-template-columns:1fr 1fr">
+      <div class="fg" style="grid-column:1/-1"><label>Calculator name</label><input class="finput" placeholder="e.g. Enterprise ROI Calculator" autofocus></div>
+      <div class="fg"><label>Template</label><select class="finput">
+        <option>ROI / Payback calculator</option>
+        <option>Seat-based pricing estimator</option>
+        <option>Usage-based estimator</option>
+        <option>TCO comparison</option>
+        <option>Blank canvas</option>
+      </select></div>
+      <div class="fg"><label>Audience</label><select class="finput"><option>Public (website)</option><option>Sales-only (internal)</option><option>Customer portal</option></select></div>
+      <div class="fg"><label>Currency</label><select class="finput"><option>USD $</option><option>EUR €</option><option>GBP £</option><option>CAD $</option></select></div>
+      <div class="fg"><label>Lead capture</label><select class="finput"><option>Email gate before results</option><option>Optional — shown after results</option><option>None</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label>Description</label><textarea class="finput" rows="2" placeholder="Internal description — not shown to users"></textarea></div>
+    </div>
+    <div class="form-actions" style="margin-top:16px">
+      <button class="btn primary" data-act="toast" data-arg="Calculator created — opening builder">Create & open builder</button>
+      <button class="btn ghost" onclick="closeDrawer()">Cancel</button>
+    </div>
+  `);
+}
+
+function openEditCalculator(id){
+  openDrawer(`Calculator — ${id||'CALC-001'}`, `
+    <div class="val-banner info" style="margin-bottom:14px">${svg(I.calc,14)} Live edits are saved automatically. Publish when ready to push to the embed URL.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      ${[['Views (30d)','1,284'],['Leads captured','87'],['Conversion rate','6.8%'],['Avg time on page','4m 12s']].map(([l,v])=>`
+        <div style="background:var(--surface);padding:10px;border-radius:7px"><div class="mut" style="font-size:11px">${l}</div><div style="font-size:18px;font-weight:700">${v}</div></div>`).join('')}
+    </div>
+    <div class="form-grid" style="grid-template-columns:1fr 1fr">
+      <div class="fg" style="grid-column:1/-1"><label>Name</label><input class="finput" value="Enterprise ROI Calculator"></div>
+      <div class="fg"><label>Status</label><select class="finput"><option selected>Published</option><option>Draft</option><option>Archived</option></select></div>
+      <div class="fg"><label>Lead capture</label><select class="finput"><option selected>Email gate before results</option><option>Optional</option><option>None</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label>Embed URL</label><div style="display:flex;gap:8px"><input class="finput mono" value="calc.delonix.io/enterprise-roi" style="flex:1"><button class="btn ghost" data-act="toast" data-arg="Copied embed snippet">Copy embed</button></div></div>
+    </div>
+    <div class="form-actions" style="margin-top:16px">
+      <button class="btn primary" data-act="toast" data-arg="Calculator changes published">Publish changes</button>
+      <button class="btn ghost" data-act="toast" data-arg="Opening full builder editor">Open full editor</button>
+      <button class="btn ghost" onclick="closeDrawer()">Close</button>
+    </div>
+  `);
+}
+
+function openNewEntity(){
+  openDrawer('New Custom Entity', `
+    <div class="val-banner info" style="margin-bottom:14px">${svg(I.entity2,14)} Custom entities extend the billing data model. They can be linked to Accounts, Subscriptions, and other objects via relation fields.</div>
+    <div class="form-grid" style="grid-template-columns:1fr 1fr">
+      <div class="fg" style="grid-column:1/-1"><label>Entity name (singular)</label><input class="finput" placeholder="e.g. Property" autofocus></div>
+      <div class="fg"><label>API name</label><input class="finput" placeholder="property" class="mono" style="font-family:monospace"></div>
+      <div class="fg"><label>Plural label</label><input class="finput" placeholder="Properties"></div>
+      <div class="fg"><label>Icon</label><input class="finput" placeholder="🏢" maxlength="2"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Description</label><textarea class="finput" rows="2" placeholder="What does this entity represent?"></textarea></div>
+      <div class="fg"><label>Linked to</label><select class="finput" multiple style="height:80px">
+        <option selected>Account</option><option>Subscription</option><option>Invoice</option><option>Contact</option>
+      </select></div>
+      <div class="fg"><label>Record ID prefix</label><input class="finput" placeholder="PROP" style="font-family:monospace;max-width:100px"></div>
+    </div>
+    <div class="form-actions" style="margin-top:16px">
+      <button class="btn primary" data-act="toast" data-arg="Custom entity created — add fields to get started">Create entity</button>
+      <button class="btn ghost" onclick="closeDrawer()">Cancel</button>
+    </div>
+  `);
+}
+
+function openNewField(){
+  openDrawer('Add Field — Property', `
+    <div class="form-grid" style="grid-template-columns:1fr 1fr">
+      <div class="fg" style="grid-column:1/-1"><label>Display name</label><input class="finput" placeholder="e.g. Property class" autofocus></div>
+      <div class="fg"><label>API key</label><input class="finput" placeholder="property_class" style="font-family:monospace"></div>
+      <div class="fg"><label>Field type</label><select class="finput" id="fieldTypeSelect">
+        <option>Text</option><option>Number</option><option>Currency</option><option>Date</option>
+        <option>Boolean</option><option>Dropdown</option><option>Relation</option><option>Formula</option>
+      </select></div>
+      <div class="fg"><label>Required</label><select class="finput"><option>No</option><option>Yes</option></select></div>
+      <div class="fg"><label>Indexed (searchable)</label><select class="finput"><option>No</option><option>Yes</option></select></div>
+      <div class="fg"><label>Show in list view</label><select class="finput"><option>Yes</option><option>No</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label>Description / help text</label><input class="finput" placeholder="Shown to users when filling in this field"></div>
+    </div>
+    <div class="form-actions" style="margin-top:16px">
+      <button class="btn primary" data-act="toast" data-arg="Field added to Property entity">Add field</button>
+      <button class="btn ghost" onclick="closeDrawer()">Cancel</button>
+    </div>
+  `);
+}
+
+function openEditField(name){
+  openDrawer(`Edit Field — ${name||'property_class'}`, `
+    <div class="form-grid" style="grid-template-columns:1fr 1fr">
+      <div class="fg" style="grid-column:1/-1"><label>Display name</label><input class="finput" value="Property class" autofocus></div>
+      <div class="fg"><label>API key</label><input class="finput mono" value="${name||'property_class'}" style="font-family:monospace"></div>
+      <div class="fg"><label>Field type</label><select class="finput"><option selected>Dropdown</option><option>Text</option></select></div>
+      <div class="fg"><label>Required</label><select class="finput"><option selected>No</option><option>Yes</option></select></div>
+      <div class="fg" style="grid-column:1/-1"><label>Dropdown options (one per line)</label><textarea class="finput" rows="4">Class A\nClass B\nClass C\nMixed-use</textarea></div>
+      <div class="fg"><label>Default value</label><input class="finput" placeholder="Leave blank for no default"></div>
+      <div class="fg"><label>Indexed</label><select class="finput"><option selected>Yes</option><option>No</option></select></div>
+    </div>
+    <div class="form-actions" style="margin-top:16px">
+      <button class="btn primary" data-act="toast" data-arg="Field ${name||'property_class'} updated">Save changes</button>
+      <button class="btn crit" style="margin-left:auto" data-act="toast" data-arg="Field deletion requires confirmation — ${name} will be removed from all records">Delete field</button>
+      <button class="btn ghost" onclick="closeDrawer()">Cancel</button>
+    </div>
+  `);
+}
 
 </script>
 </body>
