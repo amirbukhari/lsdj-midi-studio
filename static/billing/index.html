@@ -375,6 +375,67 @@ th.num{text-align:right}
 [data-density="spacious"] .card{padding:22px}
 [data-density="spacious"] .table-wrap td,[data-density="spacious"] .table-wrap th{padding:14px 16px}
 [data-density="spacious"] .set-row{padding:16px 20px}
+
+/* ── Form elements inside drawers ── */
+.form-section{margin-bottom:20px}
+.form-section-title{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);font-weight:700;margin-bottom:10px}
+.form-row{display:flex;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:5px;flex:1}
+.form-label{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.form-input,.form-select,.form-textarea{background:var(--surface-2);border:1px solid var(--border-2);border-radius:6px;
+  color:var(--text);font-size:13px;padding:8px 10px;outline:none;width:100%;box-sizing:border-box;
+  transition:border-color .12s;font-family:inherit}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--ember)}
+.form-textarea{resize:vertical;min-height:72px}
+.form-select option{background:var(--surface-2)}
+.form-footer{display:flex;gap:8px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--border);margin-top:20px}
+.line-item-row{display:grid;grid-template-columns:1fr 60px 90px 80px 28px;gap:8px;align-items:center;margin-bottom:8px}
+.line-item-row .form-input{padding:6px 8px;font-size:12px}
+.line-item-total{font-size:13px;font-weight:600;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.li-del{background:none;border:none;color:var(--text-3);cursor:pointer;font-size:16px;padding:0;line-height:1}
+.li-del:hover{color:var(--neg)}
+.invoice-summary{background:var(--surface-2);border-radius:8px;padding:14px 16px;margin-top:16px}
+.inv-sum-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;color:var(--text-2)}
+.inv-sum-row.total{border-top:1px solid var(--border);margin-top:6px;padding-top:10px;font-weight:700;font-size:15px;color:var(--text)}
+.notif-list{display:flex;flex-direction:column;gap:2px}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .1s;border:none;background:none;width:100%;text-align:left}
+.notif-item:hover{background:var(--surface-2)}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.notif-body{flex:1;min-width:0}
+.notif-msg{font-size:13px;color:var(--text);line-height:1.4;font-weight:500}
+.notif-time{font-size:11px;color:var(--text-3);margin-top:2px}
+.entity-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:8px;
+  border:1.5px solid var(--border-2);cursor:pointer;transition:border-color .12s,background .12s;margin-bottom:8px;background:var(--surface-2)}
+.entity-card:hover,.entity-card.active{border-color:var(--ember);background:var(--ember-glow)}
+.entity-flag{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.entity-info{flex:1}
+.entity-name{font-size:13px;font-weight:700;color:var(--text)}
+.entity-meta{font-size:11px;color:var(--text-3);margin-top:2px}
+.entity-check{font-size:16px;color:var(--ember);opacity:0}
+.entity-card.active .entity-check{opacity:1}
+.confirm-panel{background:rgba(229,73,73,.08);border:1px solid rgba(229,73,73,.25);border-radius:8px;padding:14px 16px;margin:16px 0}
+.confirm-panel.warn{background:rgba(245,166,35,.08);border-color:rgba(245,166,35,.25)}
+.confirm-title{font-size:13px;font-weight:700;color:#e54949;margin-bottom:6px}
+.confirm-panel.warn .confirm-title{color:var(--warn)}
+.confirm-body{font-size:12px;color:var(--text-2);line-height:1.5}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:12px;padding:10px 0;position:relative}
+.tl-item:not(:last-child)::after{content:'';position:absolute;left:7px;top:28px;bottom:-10px;width:1px;background:var(--border-2)}
+.tl-dot{width:15px;height:15px;border-radius:50%;flex-shrink:0;margin-top:3px;border:2px solid var(--border-2);background:var(--surface-2)}
+.tl-dot.done{background:var(--pos);border-color:var(--pos)}
+.tl-dot.active{background:var(--ember);border-color:var(--ember)}
+.tl-dot.fail{background:var(--neg);border-color:var(--neg)}
+.tl-content{flex:1}
+.tl-title{font-size:13px;font-weight:600;color:var(--text)}
+.tl-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.radio-group{display:flex;flex-direction:column;gap:8px}
+.radio-opt{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 10px;border-radius:6px;border:1px solid var(--border-2);background:var(--surface-2);transition:border-color .1s}
+.radio-opt:hover,.radio-opt.selected{border-color:var(--ember);background:var(--ember-glow)}
+.radio-opt input{accent-color:var(--ember)}
+.seq-step{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:7px;background:var(--surface-2);border:1px solid var(--border);margin-bottom:6px}
+.seq-day{font-size:11px;font-weight:700;color:var(--ember);width:36px;flex-shrink:0;text-transform:uppercase}
+.seq-label{flex:1;font-size:13px;color:var(--text)}
+.seq-channel{font-size:11px;color:var(--text-3);margin-right:8px}
 </style>
 </head>
 <body>
@@ -432,7 +493,7 @@ th.num{text-align:right}
         <div class="cmd-menu" id="cmdMenu"></div>
       </div>
       <div class="spacer"></div>
-      <div class="pill-select ent" data-act="toast" data-arg="Switch entity / workspace"><span class="ent-dot"></span>Delonix Inc <b>North America</b><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      <div class="pill-select ent" data-act="entityswitch"><span class="ent-dot"></span>Delonix Inc <b>North America</b><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
       <div class="pill-select">Currency <b>USD $</b>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -454,10 +515,10 @@ th.num{text-align:right}
           </div>
         </div>
       </div>
-      <button class="icon-btn" title="Notifications" data-act="toast" data-arg="3 invoices require attention"><span class="dot"></span>
+      <button class="icon-btn" title="Notifications" data-act="notifications"><span class="dot"></span>
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       </button>
-      <button class="btn primary" data-act="toast" data-arg="New invoice draft created">
+      <button class="btn primary" data-act="newinvoice">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create
       </button>
@@ -678,7 +739,7 @@ VIEWS.dashboard = (v)=>{
         <button class="on" data-act="lens" data-arg="revops">RevOps</button>
         <button data-act="lens" data-arg="cfo">CFO</button>
       </div>
-      <button class="btn ghost" data-act="toast" data-arg="Generating board export…">${svg(I.download,15)} Export</button>`
+      <button class="btn ghost" data-act="toast" data-arg="Board pack compiling — P&L, MRR bridge, ARR forecast, AR aging · PDF ready ~2 min">${svg(I.download,15)} Export</button>`
     )}
 
     <div class="grid kpis" id="kpisRevops">
@@ -776,7 +837,7 @@ VIEWS.dashboard = (v)=>{
           <div style="display:flex;flex-direction:column;gap:8px">
             <button class="btn primary" style="justify-content:center" data-act="route" data-arg="invoices">${svg(I.invoices,15)} New Invoice</button>
             <button class="btn outline" style="justify-content:center" data-act="route" data-arg="dunning">${svg(I.dunning,15)} Run Collection</button>
-            <button class="btn ghost" style="justify-content:center" data-act="toast" data-arg="Board pack export queued — you will receive a download link shortly.">${svg(I.download,15)} Export Board Pack</button>
+            <button class="btn ghost" style="justify-content:center" data-act="toast" data-arg="Board pack queued — P&L, MRR bridge, ARR forecast · download link in ~2 min">${svg(I.download,15)} Export Board Pack</button>
           </div>
         </div>
       </div>
@@ -823,7 +884,7 @@ VIEWS.accounts = (v)=>{
   const counts = [12,4,5,3,1];
   v.appendChild(el(`<div class="view">
     ${pageHead('Customers','247 accounts · $418,350 MRR · June 2026',
-      `<button class="btn ghost" data-act="toast" data-arg="Exporting customer CSV…">${svg(I.download,15)} Export CSV</button><button class="btn primary" data-act="toast" data-arg="New customer wizard opened">+ New customer</button>`)}
+      `<button class="btn ghost" data-act="toast" data-arg="Exporting customers-2026-06-28.csv — 247 accounts · 842 active subscriptions">${svg(I.download,15)} Export CSV</button><button class="btn primary" data-act="newcustomer">+ New customer</button>`)}
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
       ${kpi('Total Customers','247','+8 this month',{trend:3.3,accent:true})}
       ${kpi('Enterprise Accounts','38','41% of MRR',{trend:2.6})}
@@ -882,7 +943,7 @@ VIEWS.subscriptions = (v)=>{
   const deltaFmt = d => `<span class="tnum" style="color:${d>0?'var(--good)':'var(--crit)'};font-weight:600">${d>0?'+':''}${fmt(d)}</span>`;
   v.appendChild(el(`<div class="view">
     ${pageHead('Subscriptions','842 active · 34 trial · $418,350 MRR · June 2026',
-      `<button class="btn ghost" data-act="route" data-arg="catalog">View catalog</button><button class="btn primary" data-act="toast" data-arg="New subscription wizard opened">+ New subscription</button>`)}
+      `<button class="btn ghost" data-act="route" data-arg="catalog">View catalog</button><button class="btn primary" data-act="newsub">+ New subscription</button>`)}
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
       ${kpi('Active','842','+18 net new this month',{trend:2.2,accent:true})}
       ${kpi('Trial','34','avg 14-day window',{trend:6.3})}
@@ -968,7 +1029,7 @@ VIEWS.catalog = (v)=>{
   ];
   v.appendChild(el(`<div class="view">
     ${pageHead('Products & Plans','Pricing catalog, plan packaging and feature entitlements across all tiers.',
-      `<button class="btn ghost" data-act="toast" data-arg="Price book management opened">Manage price books</button><button class="btn primary" data-act="toast" data-arg="New plan editor opened">+ New plan</button>`)}
+      `<button class="btn ghost" data-act="pricebook">Manage price books</button><button class="btn primary" data-act="toast" data-arg="New plan editor opened">+ New plan</button>`)}
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px">
       ${plans.map((p,i)=>`<div class="card plan${i===3?' feat':''}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
@@ -1048,7 +1109,7 @@ VIEWS.invoices = (v)=>{
 
   v.appendChild(el(`<div class="view">
     ${pageHead('Invoices','June 2026 — $487,200 invoiced across 15 accounts.',
-      `<button class="btn ghost" data-act="toast" data-arg="Exporting invoices to CSV…">${svg(I.download,14)} Export</button><button class="btn primary" data-act="toast" data-arg="New invoice draft created — INV-2026-0848">+ New Invoice</button>`)}
+      `<button class="btn ghost" data-act="toast" data-arg="Exporting invoices-june-2026.csv — 47 invoices · $487,200 · download starting">${svg(I.download,14)} Export</button><button class="btn primary" data-act="toast" data-arg="New invoice draft created — INV-2026-0848">+ New Invoice</button>`)}
 
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr)">
       ${kpi('Total Invoiced','$487,200','MTD · June 2026',{accent:true,spark:'42,48,51,47,55,60,58,67,72,74,71,79'})}
@@ -1119,7 +1180,7 @@ VIEWS.quotes = (v)=>{
   ];
   v.appendChild(el(`<div class="view">
     ${pageHead('Quotes & Contracts','CPQ pipeline · approval routing · e-signature · June 2026',
-      `<button class="btn ghost" data-act="toast" data-arg="Approval rules editor opened">Approval rules</button><button class="btn primary" data-act="toast" data-arg="New quote wizard opened">+ New quote</button>`)}
+      `<button class="btn ghost" data-act="approvalrules">Approval rules</button><button class="btn primary" data-act="newquote">+ New quote</button>`)}
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
       ${kpi('Pipeline value','$1.36M','total open ACV',{accent:true})}
       ${kpi('Win rate','68%','quote → signed, trailing 90d',{trend:4})}
@@ -1246,7 +1307,7 @@ VIEWS.payments = (v)=>{
 
   v.appendChild(el(`<div class="view">
     ${pageHead('Payments','Payment ledger — gateway receipts, fee netting and status across processors.',
-      `<button class="btn ghost" data-act="toast" data-arg="Exporting payment ledger…">${svg(I.download,14)} Export</button><button class="btn primary" data-act="toast" data-arg="Record manual payment opened">+ Record Payment</button>`)}
+      `<button class="btn ghost" data-act="toast" data-arg="Exporting payment-ledger-june-2026.csv — 312 payments · $329,400 collected">${svg(I.download,14)} Export</button><button class="btn primary" data-act="toast" data-arg="Record manual payment opened">+ Record Payment</button>`)}
 
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr)">
       ${kpi('Collected MTD','$329,400','net of processing fees',{accent:true,trend:7})}
@@ -1322,7 +1383,7 @@ VIEWS.credits = (v)=>{
 
   v.appendChild(el(`<div class="view">
     ${pageHead('Credits & Refunds','Credit notes, prorations and refunds — GL-posted with approval routing.',
-      `<button class="btn ghost" data-act="toast" data-arg="Opening refund policy settings…">Refund Policy</button><button class="btn primary" data-act="toast" data-arg="New credit note opened">+ Issue Credit</button>`)}
+      `<button class="btn ghost" data-act="toast" data-arg="Opening refund policy settings…">Refund Policy</button><button class="btn primary" data-act="newcredit">+ Issue Credit</button>`)}
 
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr)">
       ${kpi('Credits Issued','$28,400','MTD · 10 credit notes',{accent:true})}
@@ -1414,7 +1475,7 @@ VIEWS.dunning = (v)=>{
 
   v.appendChild(el(`<div class="view">
     ${pageHead('Dunning & Collections','Automated retry sequences, escalation rules and recovery tracking.',
-      `<button class="btn ghost" data-act="toast" data-arg="Opening dunning rule configuration…">Sequence Rules</button><button class="btn primary" data-act="toast" data-arg="Running collections sweep across 23 accounts…">Run Sweep</button>`)}
+      `<button class="btn ghost" data-act="dunningconfig">Sequence Rules</button><button class="btn primary" data-act="toast" data-arg="Collections sweep started — 23 accounts · $47,200 at risk · sending reminders + logging attempts">Run Sweep</button>`)}
 
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr)">
       ${kpi('In Dunning','23 accounts','$47,200 total exposure',{accent:true})}
@@ -1446,7 +1507,7 @@ VIEWS.dunning = (v)=>{
         <span style="font-size:13px;font-weight:600">Active Dunning Sequences <span class="tnum" style="font-weight:400;color:var(--mut)">· 12 accounts</span></span>
         <div style="display:flex;gap:8px">
           <span class="chip">${svg(I.filter,13)} Stage</span>
-          <span class="chip" style="cursor:pointer" data-act="toast" data-arg="Exporting dunning report…">${svg(I.download,13)} Export</span>
+          <span class="chip" style="cursor:pointer" data-act="toast" data-arg="Exporting dunning-report-june-2026.xlsx — 23 active sequences · $47,200 at risk">${svg(I.download,13)} Export</span>
         </div>
       </div>
       <div class="table-wrap" style="border:none">
@@ -1567,8 +1628,8 @@ VIEWS.revrec = (v)=>{
 
   v.appendChild(el(`<div class="view">
     ${pageHead('Revenue recognition','ASC 606 / IFRS 15 — performance obligations, deferred revenue waterfall, and recognition schedules.',
-      `<button class="btn ghost" data-act="toast" data-arg="Opening recognition rules editor">Recognition rules</button>
-       <button class="btn primary" data-act="toast" data-arg="Period closed and journals posted to GL">Close period</button>`)}
+      `<button class="btn ghost" data-act="revrules">Recognition rules</button>
+       <button class="btn primary" data-act="postjournals">Close period</button>`)}
 
     <div class="grid kpis">
       ${kpi('Deferred Revenue','$2.84M','balance sheet liability — 12 contracts',{accent:true})}
@@ -1832,7 +1893,7 @@ VIEWS.tax = (v)=>{
   ];
   v.appendChild(el(`<div class="view">
     ${pageHead('Tax &amp; compliance','Automated tax determination, nexus tracking, exemption management and filing calendar.',
-      `<button class="btn ghost" data-act="toast" data-arg="Opening tax settings">${svg(I.settings,15)} Tax settings</button>
+      `<button class="btn ghost" data-act="taxconfig">${svg(I.settings,15)} Tax settings</button>
        <button class="btn primary" data-act="toast" data-arg="Filing export package ready — check Downloads">${svg(I.download,15)} Export filings</button>`)}
     <div class="grid kpis" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
       ${kpi('Tax collected (MTD)','$38,400','14 jurisdictions active',{accent:true,trend:4.2})}
@@ -1904,8 +1965,8 @@ VIEWS.reports = (v)=>{
         <button data-act="toast" data-arg="Switching to year-to-date">YTD</button>
         <button data-act="toast" data-arg="Opening custom date range picker">Custom</button>
       </div>
-      <button class="btn ghost" data-act="toast" data-arg="Scheduling report delivery…">${svg(I.settings,15)} Schedule</button>
-      <button class="btn primary" data-act="toast" data-arg="Opening report builder…">${svg(I.plus,15)} New report</button>`
+      <button class="btn ghost" data-act="schedulereport">${svg(I.settings,15)} Schedule</button>
+      <button class="btn primary" data-act="reportbuilder">${svg(I.plus,15)} New report</button>`
     )}
 
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:24px">
@@ -1915,7 +1976,7 @@ VIEWS.reports = (v)=>{
           <div style="font-weight:700;font-size:14px;color:var(--text-1)">Revenue Analytics</div>
         </div>
         <div style="font-size:12px;color:var(--text-2);line-height:1.5">MRR bridge, cohort ARR, expansion waterfall, and churn analysis across all entities.</div>
-        <button class="btn outline" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="Building Revenue Analytics report for June 2026…">${svg(I.download,14)} Generate Report</button>
+        <button class="btn outline" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="Revenue Analytics (June 2026) generating — 847 records · PDF ready in ~45s">${svg(I.download,14)} Generate Report</button>
       </div>
       <div class="card panel" style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -1923,7 +1984,7 @@ VIEWS.reports = (v)=>{
           <div style="font-weight:700;font-size:14px;color:var(--text-1)">A/R Aging</div>
         </div>
         <div style="font-size:12px;color:var(--text-2);line-height:1.5">Aging buckets by customer, overdue exposure, DSO trend, and collection risk scoring.</div>
-        <button class="btn outline" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="Building A/R Aging report as of June 28, 2026…">${svg(I.download,14)} Generate Report</button>
+        <button class="btn outline" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="A/R Aging (Jun 28) — 94 open invoices · $157,800 outstanding · ready in ~20s">${svg(I.download,14)} Generate Report</button>
       </div>
       <div class="card panel" style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -1931,7 +1992,7 @@ VIEWS.reports = (v)=>{
           <div style="font-weight:700;font-size:14px;color:var(--text-1)">Subscription Cohorts</div>
         </div>
         <div style="font-size:12px;color:var(--text-2);line-height:1.5">Monthly cohort retention, expansion rates, and lifetime value by acquisition quarter.</div>
-        <button class="btn outline" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="Building Subscription Cohort report…">${svg(I.download,14)} Generate Report</button>
+        <button class="btn outline" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="Subscription Cohort Analysis (Q2 2026) — 842 subscribers · ready in ~60s">${svg(I.download,14)} Generate Report</button>
       </div>
       <div class="card panel" style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -1939,7 +2000,7 @@ VIEWS.reports = (v)=>{
           <div style="font-weight:700;font-size:14px;color:var(--text-1)">Executive Pack</div>
         </div>
         <div style="font-size:12px;color:var(--text-2);line-height:1.5">Board-ready PDF: KPI summary, variance to budget, forecast, and key commentary.</div>
-        <button class="btn primary" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="Compiling Executive Pack for June 2026 board meeting…">${svg(I.download,14)} Generate Report</button>
+        <button class="btn primary" style="margin-top:auto;justify-content:center" data-act="toast" data-arg="Executive Board Pack compiling — 12 slides · P&L, MRR bridge, AR aging · ~2 min">${svg(I.download,14)} Generate Report</button>
       </div>
     </div>
 
@@ -2055,8 +2116,8 @@ VIEWS.consolidation = (v)=>{
         <button class="on" data-act="toast" data-arg="Showing consolidated view">Consolidated</button>
         <button data-act="toast" data-arg="Switching to entity view">By entity</button>
       </div>
-      <button class="btn ghost" data-act="toast" data-arg="Exporting consolidated statements…">${svg(I.download,15)} Export</button>
-      <button class="btn primary" data-act="toast" data-arg="Running elimination entries…">${svg(I.check,15)} Run Eliminations</button>`
+      <button class="btn ghost" data-act="toast" data-arg="Exporting consolidated-statements-q2-2026.xlsx — 3 entities · FX-adjusted">${svg(I.download,15)} Export</button>
+      <button class="btn primary" data-act="toast" data-arg="Intercompany eliminations running — $84,200 IC receivable vs payable matched across 3 entities">${svg(I.check,15)} Run Eliminations</button>`
     )}
 
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:24px">
@@ -2619,7 +2680,7 @@ VIEWS.cashflow = (v)=>{
   v.appendChild(el(`<div class="view">
     ${pageHead('Cash & treasury','Cash position, operating cash flow, bank accounts, and upcoming payment obligations.',
       `<button class="btn ghost" data-act="toast" data-arg="Cash flow statement exported to XLSX">${svg(I.download,15)} Cash flow stmt</button>
-       <button class="btn primary" data-act="toast" data-arg="EUR sweep initiated — funds will settle in operating account within 1 business day">Sweep EUR → USD</button>`)}
+       <button class="btn primary" data-act="toast" data-arg="EUR sweep initiated — €314,000 converting at 1.0842 · settles in operating account within 1 business day">Sweep EUR → USD</button>`)}
 
     <div class="grid kpis">
       ${kpi('Cash position','$2.84M','3 accounts · USD',{trend:3.4,accent:true})}
@@ -2747,7 +2808,7 @@ VIEWS.close = (v)=>{
     ${pageHead('Period Close',
       'Month-end close · June 2026 · Delonix Inc',
       `<button class="btn ghost" data-act="toast" data-arg="Opening close calendar…">${svg(I.settings,15)} Close calendar</button>
-      <button class="btn primary" data-act="toast" data-arg="Signing off June 2026 close…">${svg(I.check,15)} Sign Off Period</button>`
+      <button class="btn primary" data-act="signoffclose">${svg(I.check,15)} Sign Off Period</button>`
     )}
 
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px">
@@ -3085,7 +3146,7 @@ VIEWS.controls = (v)=>{
   ];
   v.appendChild(el(`<div class="view">
     ${pageHead('Controls &amp; audit','SOC 2, access controls, and the immutable audit log — built for SOX compliance, external audit and due diligence.',
-      `<button class="btn ghost" data-act="toast" data-arg="Generating evidence pack — check Downloads in 30s">${svg(I.download,15)} Evidence pack</button>
+      `<button class="btn ghost" data-act="toast" data-arg="Evidence pack generating — 23 control documents · 847 transaction samples · ready in 45s">${svg(I.download,15)} Evidence pack</button>
        <button class="btn primary" data-act="toast" data-arg="Opening SOC 2 Type II report (2025-11)">View certificates</button>`)}
     <div class="grid kpis" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
       ${kpi('Open issues','3','1 High · 1 Med · 1 Low',{accent:true})}
@@ -3640,7 +3701,7 @@ VIEWS.settings = (v)=>{
           <div class="set-row"><div><div class="t">Revenue recognition (ASC 606)</div><div class="d">Generate deferred revenue schedules</div></div><div class="spacer"></div><div class="toggle on" data-act="toggle"><i></i></div></div>
         </div>
         <div class="card panel">
-          <div class="panel-head"><h3>Team & permissions</h3><div class="right"><button class="btn ghost" style="padding:5px 10px" data-act="toast" data-arg="Invite sent">+ Invite</button></div></div>
+          <div class="panel-head"><h3>Team & permissions</h3><div class="right"><button class="btn ghost" style="padding:5px 10px" data-act="inviteusr">+ Invite</button></div></div>
           <div class="table-wrap" style="border:none"><table style="min-width:0"><thead><tr><th>Member</th><th>Role</th><th>Access</th></tr></thead>
           <tbody>${[['Amir Bukhari','Admin','Full'],['M. Reyes','Revenue Manager','Billing, A/R'],['D. Cho','Collections','A/R, Dunning'],['P. Anand','Sales Ops','Quotes'],['Auditor (read-only)','Viewer','Reports']]
             .map(r=>`<tr><td class="nm">${r[0]}</td><td>${pill(r[1]==='Admin'?'ember':'muted',r[1])}</td><td class="mut">${r[2]}</td></tr>`).join('')}</tbody></table></div>
@@ -3873,6 +3934,32 @@ document.addEventListener('click',e=>{
   if(a==='toast') return toast(arg);
         if(a==='theme') return setTheme(arg);
         if(a==='density') return setDensity(arg);
+        if(a==='newinvoice') return openNewInvoice();
+        if(a==='notifications') return openNotifications();
+        if(a==='entityswitch') return openEntitySwitch();
+        if(a==='currencypanel') return openCurrencyPanel();
+        if(a==='newquote') return openNewQuote();
+        if(a==='newcustomer') return openNewCustomer();
+        if(a==='newsub') return openNewSub();
+        if(a==='newcredit') return openNewCredit();
+        if(a==='approveinv') return openApproveInvoice(arg);
+        if(a==='voidinv') return openVoidInvoice(arg);
+        if(a==='sendinvreminder') return openSendReminder(arg);
+        if(a==='retrypayment') return openRetryPayment(arg);
+        if(a==='refundpay') return openRefund(arg);
+        if(a==='collectiondetail') return openCollectionDetail(arg);
+        if(a==='logcontact') return openLogContact(arg);
+        if(a==='manualmatch') return openManualMatch(arg);
+        if(a==='dunningconfig') return openDunningConfig();
+        if(a==='approvalrules') return openApprovalRules();
+        if(a==='postjournals') return openPostJournals();
+        if(a==='signoffclose') return openSignOff();
+        if(a==='reportbuilder') return openReportBuilder();
+        if(a==='schedulereport') return openScheduleReport();
+        if(a==='inviteusr') return openInviteUser();
+        if(a==='pricebook') return openPriceBook();
+        if(a==='taxconfig') return openTaxConfig();
+        if(a==='revrules') return openRevRules();
 });
 const _lf=document.getElementById('loginForm');
 if(_lf) _lf.addEventListener('submit',e=>{ e.preventDefault(); enterApp(e); });
@@ -4066,6 +4153,675 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 // Apply saved theme immediately
 (()=>{document.documentElement.dataset.theme=localStorage.getItem('dlx-theme')||'ember';})();
+
+
+/* ═══════════════════════════════════════════════════════════
+   DRAWER FUNCTIONS v2 — real panels, no stubs
+   ═══════════════════════════════════════════════════════════ */
+
+const CUSTOMERS=['Acme Corp','TechFlow Inc','Nexus Digital','Pinnacle SaaS','Streamline Co',
+  'Orbit Labs','DataVault','CloudBase Inc','Meridian Tech','Apex Systems','Vertex IO',
+  'Cascade Analytics','Summit Digital','Prism Networks','Zenith Cloud','NovaSpark',
+  'Fulcrum Labs','Stellar Systems','Bridgepoint','Ironside Tech'];
+const PLANS=['Starter','Business','Business+','Enterprise','Enterprise+'];
+
+function custOpts(){return CUSTOMERS.map(c=>`<option>${c}</option>`).join('');}
+function planOpts(){return PLANS.map(p=>`<option>${p}</option>`).join('');}
+
+/* ── New Invoice ── */
+function openNewInvoice(){
+  openDrawer('New Invoice',`
+    <div class="form-section">
+      <div class="form-row"><div class="form-group"><label class="form-label">Customer</label>
+        <select class="form-select"><option value="">— select —</option>${custOpts()}</select></div>
+        <div class="form-group" style="max-width:140px"><label class="form-label">Invoice date</label>
+        <input class="form-input" type="date" value="2026-06-28"></div>
+        <div class="form-group" style="max-width:140px"><label class="form-label">Due date</label>
+        <input class="form-input" type="date" value="2026-07-28"></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">PO / Reference</label>
+        <input class="form-input" placeholder="Optional"></div>
+        <div class="form-group"><label class="form-label">Payment terms</label>
+        <select class="form-select"><option>Net 30</option><option>Net 60</option><option>Net 90</option><option>Due on receipt</option></select></div></div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Line items</div>
+      <div style="display:grid;grid-template-columns:1fr 60px 90px 80px 28px;gap:8px;margin-bottom:6px">
+        <span class="form-label">Description</span><span class="form-label">Qty</span>
+        <span class="form-label">Unit price</span><span class="form-label">Total</span><span></span></div>
+      <div id="lineItems">
+        <div class="line-item-row"><input class="form-input" placeholder="Platform subscription — Business plan" value="Platform subscription — Business plan">
+          <input class="form-input" type="number" value="1"><input class="form-input" type="number" value="199.00">
+          <span class="line-item-total">$199.00</span><button class="li-del" data-act="toast" data-arg="">×</button></div>
+        <div class="line-item-row"><input class="form-input" placeholder="Additional seats (×5)" value="Additional seats (×5)">
+          <input class="form-input" type="number" value="5"><input class="form-input" type="number" value="15.00">
+          <span class="line-item-total">$75.00</span><button class="li-del" data-act="toast" data-arg="">×</button></div>
+        <div class="line-item-row"><input class="form-input" placeholder="Onboarding & setup fee" value="Onboarding & setup fee">
+          <input class="form-input" type="number" value="1"><input class="form-input" type="number" value="500.00">
+          <span class="line-item-total">$500.00</span><button class="li-del" data-act="toast" data-arg="">×</button></div>
+      </div>
+      <button class="btn ghost" style="margin-top:6px;font-size:12px" data-act="toast" data-arg="Line item added">+ Add line item</button>
+    </div>
+    <div class="invoice-summary">
+      <div class="inv-sum-row"><span>Subtotal</span><span class="tnum">$774.00</span></div>
+      <div class="inv-sum-row"><span>Tax (HST 13%)</span><span class="tnum">$100.62</span></div>
+      <div class="inv-sum-row"><span>Discount</span><span class="tnum">−$0.00</span></div>
+      <div class="inv-sum-row total"><span>Total due</span><span class="tnum">$874.62</span></div>
+    </div>
+    <div class="form-group" style="margin-top:16px"><label class="form-label">Notes / memo</label>
+      <textarea class="form-textarea" placeholder="Internal notes or customer-facing memo…"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="Draft INV-2026-0849 saved to drafts">Save draft</button>
+      <button class="btn primary" data-act="toast" data-arg="Invoice INV-2026-0849 sent to customer — $874.62 due Jul 28">Send invoice</button>
+    </div>`);
+}
+
+/* ── Notifications panel ── */
+function openNotifications(){
+  const notifs=[
+    {dot:'#e54949',msg:'Apex Systems — INV-2026-0831 overdue 14 days · $5,800',t:'2 min ago',act:'invoice',arg:'INV-2026-0831'},
+    {dot:'#e54949',msg:'Summit Digital — PAY-2026-0412 failed · retry available',t:'18 min ago',act:'paydetail',arg:'PAY-2026-0412'},
+    {dot:'#e54949',msg:'Stellar Systems — credit limit exceeded, subscription at risk',t:'1 hr ago',act:'account',arg:'Stellar Systems'},
+    {dot:'#f5a623',msg:'Cascade Analytics — renewal due in 7 days · $2,950/mo',t:'3 hr ago',act:'subdetail',arg:'Cascade Analytics'},
+    {dot:'#f5a623',msg:'Revenue recognition: 3 contracts pending manual review',t:'4 hr ago',act:'route',arg:'revrec'},
+    {dot:'#f5a623',msg:'Financial close: 4 tasks pending CFO sign-off',t:'6 hr ago',act:'route',arg:'close'},
+    {dot:'#4a9eff',msg:'Export ready: Q2 Board Pack — click to download',t:'Yesterday',act:'toast',arg:'Downloading Q2 Board Pack PDF…'},
+    {dot:'#4a9eff',msg:'Stripe webhook: 2 failed deliveries in last hour',t:'Yesterday',act:'route',arg:'developers'},
+  ];
+  openDrawer('Notifications',`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:12px;color:var(--text-3)">8 unread</span>
+      <button class="btn ghost" style="padding:4px 10px;font-size:12px" data-act="toast" data-arg="All notifications marked as read">Mark all read</button>
+    </div>
+    <div class="notif-list">
+      ${notifs.map(n=>`<button class="notif-item" data-act="${n.act}" data-arg="${n.arg}">
+        <span class="notif-dot" style="background:${n.dot}"></span>
+        <div class="notif-body"><div class="notif-msg">${n.msg}</div><div class="notif-time">${n.t}</div></div>
+      </button>`).join('')}
+    </div>`);
+}
+
+/* ── Entity switcher ── */
+function openEntitySwitch(){
+  const entities=[
+    {flag:'🇺🇸',name:'Delonix Inc',sub:'North America · USD',subs:842,mrr:'$418,350',active:true},
+    {flag:'🇪🇺',name:'Delonix EU',sub:'Europe · EUR',subs:214,mrr:'€127,400',active:false},
+    {flag:'🇸🇬',name:'Delonix APAC',sub:'Asia-Pacific · SGD',subs:88,mrr:'S$54,200',active:false},
+  ];
+  openDrawer('Switch Workspace',`
+    ${entities.map(e=>`<div class="entity-card${e.active?' active':''}" data-act="${e.active?'toast':'toast'}" data-arg="${e.active?'Already on '+e.name:'Switched to '+e.name}">
+      <div class="entity-flag">${e.flag}</div>
+      <div class="entity-info"><div class="entity-name">${e.name}</div>
+        <div class="entity-meta">${e.sub} · ${e.subs} subscriptions · MRR ${e.mrr}</div></div>
+      <span class="entity-check">✓</span>
+    </div>`).join('')}
+    <div class="form-footer" style="margin-top:8px">
+      <button class="btn ghost" data-act="toast" data-arg="Entity management opened">Manage entities</button>
+      <button class="btn primary" data-act="toast" data-arg="New entity wizard opened">+ Add entity</button>
+    </div>`);
+}
+
+/* ── Currency panel ── */
+function openCurrencyPanel(){
+  const currencies=[
+    {flag:'🇺🇸',code:'USD',name:'US Dollar',rate:'1.0000',active:true},
+    {flag:'🇪🇺',code:'EUR',name:'Euro',rate:'0.9242',active:false},
+    {flag:'🇬🇧',code:'GBP',name:'British Pound',rate:'0.7874',active:false},
+    {flag:'🇨🇦',code:'CAD',name:'Canadian Dollar',rate:'1.3621',active:false},
+    {flag:'🇸🇬',code:'SGD',name:'Singapore Dollar',rate:'1.3498',active:false},
+    {flag:'🇦🇺',code:'AUD',name:'Australian Dollar',rate:'1.5372',active:false},
+  ];
+  openDrawer('Display Currency',`
+    <p style="font-size:12px;color:var(--text-3);margin-bottom:14px">Display only — invoices are billed in their contract currency.</p>
+    ${currencies.map(c=>`<div class="entity-card${c.active?' active':''}" data-act="toast" data-arg="Display currency set to ${c.code}">
+      <span style="font-size:20px">${c.flag}</span>
+      <div class="entity-info"><div class="entity-name">${c.name}</div>
+        <div class="entity-meta">${c.code} · 1 USD = ${c.rate} ${c.code}</div></div>
+      ${c.active?'<span class="entity-check">✓</span>':''}
+    </div>`).join('')}`);
+}
+
+/* ── New Quote ── */
+function openNewQuote(){
+  openDrawer('New Quote',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Customer</label>
+      <select class="form-select"><option value="">— select —</option>${custOpts()}</select></div>
+      <div class="form-group"><label class="form-label">Owner</label>
+      <select class="form-select"><option>M. Reyes</option><option>P. Anand</option><option>D. Cho</option><option>Amir Bukhari</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Deal name</label>
+      <input class="form-input" placeholder="e.g. Acme Corp Enterprise Renewal 2027"></div>
+      <div class="form-group" style="max-width:140px"><label class="form-label">Expires</label>
+      <input class="form-input" type="date" value="2026-07-28"></div></div>
+    <div class="form-section">
+      <div class="form-section-title">Line items</div>
+      <div style="display:grid;grid-template-columns:1fr 60px 90px 70px 80px 28px;gap:8px;margin-bottom:6px">
+        <span class="form-label">Product</span><span class="form-label">Qty</span>
+        <span class="form-label">Unit price</span><span class="form-label">Disc %</span>
+        <span class="form-label">Total</span><span></span></div>
+      <div class="line-item-row" style="grid-template-columns:1fr 60px 90px 70px 80px 28px">
+        <select class="form-select">${planOpts()}</select>
+        <input class="form-input" type="number" value="1"><input class="form-input" type="number" value="8500">
+        <input class="form-input" type="number" value="10"><span class="line-item-total">$7,650</span>
+        <button class="li-del">×</button></div>
+      <button class="btn ghost" style="margin-top:6px;font-size:12px" data-act="toast" data-arg="Line item added">+ Add line item</button>
+    </div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Payment terms</label>
+      <select class="form-select"><option>Net 30</option><option>Net 60</option><option>Annual prepay</option></select></div>
+      <div class="form-group"><label class="form-label">Stage</label>
+      <select class="form-select"><option>Discovery</option><option>Proposal</option><option>Negotiation</option></select></div></div>
+    <div class="form-group"><label class="form-label">Notes</label>
+      <textarea class="form-textarea" placeholder="Deal context, custom terms, internal notes…"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="Quote QT-2026-0094 saved as draft">Save draft</button>
+      <button class="btn primary" data-act="toast" data-arg="Quote QT-2026-0094 sent for internal review">Send for review</button>
+    </div>`);
+}
+
+/* ── New Customer ── */
+function openNewCustomer(){
+  openDrawer('New Customer',`
+    <div class="form-section-title">Company</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Company name</label>
+      <input class="form-input" placeholder="Acme Corporation"></div>
+      <div class="form-group"><label class="form-label">Plan</label>
+      <select class="form-select">${planOpts()}</select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Industry</label>
+      <select class="form-select"><option>SaaS</option><option>Fintech</option><option>Healthcare</option><option>E-commerce</option><option>Other</option></select></div>
+      <div class="form-group"><label class="form-label">Country</label>
+      <select class="form-select"><option>United States</option><option>Canada</option><option>United Kingdom</option><option>Germany</option><option>Other</option></select></div></div>
+    <div class="form-section-title" style="margin-top:16px">Primary contact</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Name</label>
+      <input class="form-input" placeholder="Jane Smith"></div>
+      <div class="form-group"><label class="form-label">Title</label>
+      <input class="form-input" placeholder="CFO"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Email</label>
+      <input class="form-input" type="email" placeholder="jane@company.com"></div>
+      <div class="form-group"><label class="form-label">Phone</label>
+      <input class="form-input" type="tel" placeholder="+1 (555) 000-0000"></div></div>
+    <div class="form-section-title" style="margin-top:16px">Billing</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Payment method</label>
+      <select class="form-select"><option>Credit card</option><option>ACH / Bank transfer</option><option>Wire</option><option>Invoice (Net 30)</option></select></div>
+      <div class="form-group"><label class="form-label">Tax exempt</label>
+      <div style="margin-top:8px"><div class="toggle" data-act="toggle"><i></i></div></div></div></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="Customer draft saved">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Customer account created — welcome email sent">Create account</button>
+    </div>`);
+}
+
+/* ── New Subscription ── */
+function openNewSub(){
+  openDrawer('New Subscription',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Customer</label>
+      <select class="form-select"><option value="">— select customer —</option>${custOpts()}</select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Plan</label>
+      <select class="form-select">${planOpts()}</select></div>
+      <div class="form-group"><label class="form-label">Billing cycle</label>
+      <select class="form-select"><option>Monthly</option><option>Annual (save 20%)</option><option>Quarterly</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Seats</label>
+      <input class="form-input" type="number" value="5" min="1"></div>
+      <div class="form-group"><label class="form-label">Start date</label>
+      <input class="form-input" type="date" value="2026-07-01"></div>
+      <div class="form-group"><label class="form-label">Trial period</label>
+      <select class="form-select"><option>No trial</option><option>7 days</option><option>14 days</option><option>30 days</option></select></div></div>
+    <div class="form-group"><label class="form-label">Notes</label>
+      <textarea class="form-textarea" placeholder="Internal notes…"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="Subscription draft cancelled">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Subscription created — first invoice queued for Jul 1">Create subscription</button>
+    </div>`);
+}
+
+/* ── New Credit Note ── */
+function openNewCredit(){
+  openDrawer('New Credit Note',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Customer</label>
+      <select class="form-select"><option value="">— select —</option>${custOpts()}</select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Related invoice</label>
+      <select class="form-select"><option>INV-2026-0831 · Apex Systems · $5,800</option>
+        <option>INV-2026-0824 · Summit Digital · $6,400</option>
+        <option>INV-2026-0819 · CloudBase Inc · $7,200</option>
+        <option>Not linked to an invoice</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Reason</label>
+      <select class="form-select"><option>Service outage</option><option>Billing error</option><option>Goodwill</option><option>Duplicate charge</option><option>Proration adjustment</option><option>Contract amendment</option></select></div>
+      <div class="form-group" style="max-width:140px"><label class="form-label">Amount</label>
+      <input class="form-input" type="number" placeholder="0.00"></div></div>
+    <div class="form-group"><label class="form-label">Description</label>
+      <input class="form-input" placeholder="Brief description for the customer"></div>
+    <div class="form-group" style="margin-top:10px"><label class="form-label">Internal notes</label>
+      <textarea class="form-textarea" placeholder="Internal context only, not shown to customer…"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Credit note CRD-2026-0041 issued — applied to open balance">Issue credit note</button>
+    </div>`);
+}
+
+/* ── Approve Invoice ── */
+function openApproveInvoice(id){
+  openDrawer('Approve Invoice',`
+    <div class="card" style="margin-bottom:16px;padding:14px 16px">
+      <div class="form-label" style="margin-bottom:8px">Invoice summary</div>
+      <div class="inv-sum-row"><span>Invoice</span><span class="tnum" style="font-weight:600">${id||'INV-2026-0847'}</span></div>
+      <div class="inv-sum-row"><span>Customer</span><span>Acme Corp</span></div>
+      <div class="inv-sum-row"><span>Amount</span><span class="tnum">$4,200.00</span></div>
+      <div class="inv-sum-row"><span>Due date</span><span>Jul 15, 2026</span></div>
+    </div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Approver</label>
+      <select class="form-select"><option>Amir Bukhari (CFO)</option><option>M. Reyes (Revenue Manager)</option></select></div>
+      <div class="form-group"><label class="form-label">Approval date</label>
+      <input class="form-input" type="date" value="2026-06-28"></div></div>
+    <div class="form-group"><label class="form-label">Approval notes (optional)</label>
+      <textarea class="form-textarea" placeholder="Notes for audit trail…" style="min-height:56px"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Invoice approved — sent to customer for payment">Confirm approval</button>
+    </div>`);
+}
+
+/* ── Void Invoice ── */
+function openVoidInvoice(id){
+  openDrawer('Void Invoice',`
+    <div class="confirm-panel">
+      <div class="confirm-title">⚠ This action cannot be undone</div>
+      <div class="confirm-body">Voiding ${id||'this invoice'} will permanently cancel it. A credit note will be created if payment has already been collected. The invoice number will be retained in the audit log.</div>
+    </div>
+    <div class="form-group" style="margin-top:16px"><label class="form-label">Reason for voiding</label>
+      <select class="form-select"><option>Duplicate invoice</option><option>Billing error</option><option>Customer request</option><option>Contract cancelled</option><option>Test / sandbox entry</option></select></div>
+    <div class="form-group" style="margin-top:10px"><label class="form-label">Notes</label>
+      <textarea class="form-textarea" placeholder="Additional context for audit trail…"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Keep invoice</button>
+      <button class="btn primary" style="background:var(--neg)" data-act="toast" data-arg="Invoice voided — credit note CRD-2026-0042 created">Void invoice</button>
+    </div>`);
+}
+
+/* ── Send Payment Reminder ── */
+function openSendReminder(id){
+  openDrawer('Send Payment Reminder',`
+    <div class="form-section-title">Email preview</div>
+    <div class="card" style="padding:16px;margin-bottom:16px;border-radius:8px">
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:8px">To: billing@acmecorp.com</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">Friendly reminder: Invoice ${id||'INV-2026-0831'} is overdue</div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.6">Hi Jane,<br><br>
+        This is a friendly reminder that invoice <b>${id||'INV-2026-0831'}</b> for <b>$5,800.00</b> was due on Jun 14, 2026 and remains outstanding.<br><br>
+        Please arrange payment at your earliest convenience. If you have any questions, reply to this email.<br><br>
+        <a style="color:var(--ember)">Pay invoice →</a></div>
+    </div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Send to</label>
+      <input class="form-input" value="billing@acmecorp.com"></div>
+      <div class="form-group"><label class="form-label">CC</label>
+      <input class="form-input" placeholder="Optional"></div></div>
+    <div class="form-group"><label class="form-label">Add personal note</label>
+      <textarea class="form-textarea" placeholder="Appended to the standard reminder template…" style="min-height:56px"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Payment reminder sent to billing@acmecorp.com">Send reminder</button>
+    </div>`);
+}
+
+/* ── Retry Payment ── */
+function openRetryPayment(id){
+  openDrawer('Retry Payment',`
+    <div class="card" style="margin-bottom:16px;padding:14px 16px">
+      <div class="inv-sum-row"><span>Payment ref</span><span class="tnum" style="font-weight:600">${id||'PAY-2026-0412'}</span></div>
+      <div class="inv-sum-row"><span>Customer</span><span>Summit Digital</span></div>
+      <div class="inv-sum-row"><span>Amount</span><span class="tnum">$6,400.00</span></div>
+      <div class="inv-sum-row"><span>Gateway</span><span>Stripe</span></div>
+    </div>
+    <div class="confirm-panel warn">
+      <div class="confirm-title" style="color:var(--warn)">Last failure reason</div>
+      <div class="confirm-body">Card declined — insufficient funds (Stripe code: card_declined / insufficient_funds). This occurred Jun 25, 2026 at 14:22 UTC.</div>
+    </div>
+    <div class="form-group" style="margin-top:16px"><label class="form-label">Payment method</label>
+      <select class="form-select"><option>Visa ···· 4242 (on file)</option><option>Mastercard ···· 5555 (on file)</option><option>Request new payment method from customer</option></select></div>
+    <div class="form-group" style="margin-top:10px"><label class="form-label">Retry time</label>
+      <select class="form-select"><option>Immediately</option><option>In 24 hours</option><option>In 48 hours</option><option>Custom…</option></select></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Payment retry queued — will attempt PAY-2026-0412 immediately">Retry now</button>
+    </div>`);
+}
+
+/* ── Refund ── */
+function openRefund(id){
+  openDrawer('Issue Refund',`
+    <div class="card" style="margin-bottom:16px;padding:14px 16px">
+      <div class="inv-sum-row"><span>Original payment</span><span class="tnum" style="font-weight:600">${id||'PAY-2026-0387'}</span></div>
+      <div class="inv-sum-row"><span>Collected</span><span class="tnum">$4,200.00</span></div>
+      <div class="inv-sum-row"><span>Gateway</span><span>Stripe · Visa ···· 4242</span></div>
+      <div class="inv-sum-row"><span>Max refundable</span><span class="tnum" style="color:var(--pos)">$4,200.00</span></div>
+    </div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Refund type</label>
+      <select class="form-select"><option>Full refund ($4,200.00)</option><option>Partial refund</option></select></div>
+      <div class="form-group"><label class="form-label">Amount</label>
+      <input class="form-input" type="number" value="4200.00"></div></div>
+    <div class="form-group"><label class="form-label">Reason</label>
+      <select class="form-select"><option>Customer requested cancellation</option><option>Service outage / SLA breach</option><option>Billing error</option><option>Duplicate charge</option><option>Goodwill</option></select></div>
+    <div class="form-group" style="margin-top:10px"><label class="form-label">Internal notes</label>
+      <textarea class="form-textarea" placeholder="Notes for audit trail…" style="min-height:56px"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" style="background:var(--neg)" data-act="toast" data-arg="Refund of $4,200.00 queued — Stripe will process within 5–10 business days">Issue refund</button>
+    </div>`);
+}
+
+/* ── Collection Detail ── */
+function openCollectionDetail(acct){
+  openDrawer((acct||'Apex Systems')+' — Collections',`
+    <div class="grid kpis" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+      <div class="card kpi" style="padding:12px 14px"><div class="lab">Outstanding</div><div class="val tnum" style="font-size:18px">$5,800</div><div class="sub" style="color:var(--neg)">14 days overdue</div></div>
+      <div class="card kpi" style="padding:12px 14px"><div class="lab">Day in sequence</div><div class="val tnum" style="font-size:18px">14</div><div class="sub">Next: final notice</div></div>
+      <div class="card kpi" style="padding:12px 14px"><div class="lab">Contact attempts</div><div class="val tnum" style="font-size:18px">3</div><div class="sub">Last: Jun 26 email</div></div>
+    </div>
+    <div class="form-section-title">Dunning timeline</div>
+    <div class="timeline" style="margin-bottom:18px">
+      <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">Day 1 — Friendly reminder sent</div><div class="tl-sub">Jun 15 · Email opened (2 times)</div></div></div>
+      <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">Day 3 — Payment failed notice</div><div class="tl-sub">Jun 17 · Email delivered, not opened</div></div></div>
+      <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">Day 7 — Urgent notice (email + SMS)</div><div class="tl-sub">Jun 21 · Email opened · SMS delivered</div></div></div>
+      <div class="tl-item"><div class="tl-dot active"></div><div class="tl-content"><div class="tl-title">Day 14 — Final notice + manual call task</div><div class="tl-sub">Jun 28 · Today — email sent, call pending</div></div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><div class="tl-title">Day 21 — Suspension warning</div><div class="tl-sub">Scheduled Jul 6</div></div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><div class="tl-title">Day 30 — Account suspend</div><div class="tl-sub">Scheduled Jul 15</div></div></div>
+    </div>
+    <div class="form-section-title">Log manual contact</div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Contact type</label>
+      <select class="form-select"><option>Phone call</option><option>Email</option><option>SMS</option><option>Meeting</option></select></div>
+      <div class="form-group"><label class="form-label">Outcome</label>
+      <select class="form-select"><option>Promise to pay</option><option>Dispute raised</option><option>Voicemail</option><option>No answer</option><option>Paid</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Follow-up date</label>
+      <input class="form-input" type="date" value="2026-07-01"></div>
+      <div class="form-group"><label class="form-label">Notes</label>
+      <input class="form-input" placeholder="Call notes…"></div></div>
+    <div class="form-footer">
+      <button class="btn ghost" style="color:var(--neg);border-color:var(--neg)" data-act="toast" data-arg="Account suspended — access revoked pending payment">Suspend account</button>
+      <button class="btn ghost" data-act="toast" data-arg="Contact logged for ${acct||'account'}">Log contact</button>
+      <button class="btn primary" data-act="toast" data-arg="Manual payment link sent to ${acct||'customer'} billing contact">Send payment link</button>
+    </div>`);
+}
+
+/* ── Dunning Config ── */
+function openDunningConfig(){
+  const steps=[
+    {day:'Day 1',label:'Friendly reminder',ch:'Email',on:true},
+    {day:'Day 3',label:'Payment failed notice',ch:'Email',on:true},
+    {day:'Day 7',label:'Urgent notice',ch:'Email + SMS',on:true},
+    {day:'Day 14',label:'Final notice + call task',ch:'Email + SMS + Task',on:true},
+    {day:'Day 21',label:'Suspension warning',ch:'Email',on:true},
+    {day:'Day 30',label:'Account suspend',ch:'Automated action',on:true},
+  ];
+  openDrawer('Dunning Sequence Config',`
+    <p style="font-size:12px;color:var(--text-2);margin-bottom:16px">Configure the automated recovery sequence applied to all failed and overdue accounts.</p>
+    ${steps.map(s=>`<div class="seq-step">
+      <span class="seq-day">${s.day}</span>
+      <span class="seq-label">${s.label}</span>
+      <span class="seq-channel">${s.ch}</span>
+      <div class="toggle${s.on?' on':''}" data-act="toggle"><i></i></div>
+    </div>`).join('')}
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Dunning sequence saved and active">Save configuration</button>
+    </div>`);
+}
+
+/* ── Approval Rules ── */
+function openApprovalRules(){
+  const rules=[
+    {thr:'Invoice > $10,000',approvers:'CFO',sla:'24h',active:true},
+    {thr:'Invoice > $50,000',approvers:'CEO + CFO',sla:'48h',active:true},
+    {thr:'Refund > $1,000',approvers:'Revenue Manager',sla:'12h',active:true},
+    {thr:'Credit note > $5,000',approvers:'VP Finance',sla:'24h',active:true},
+  ];
+  openDrawer('Approval Rules',`
+    <div class="table-wrap" style="border:none;margin-bottom:16px"><table><thead><tr>
+      <th>Threshold</th><th>Approvers</th><th>SLA</th><th>Active</th></tr></thead><tbody>
+      ${rules.map(r=>`<tr><td>${r.thr}</td><td class="nm">${r.approvers}</td>
+        <td class="mut">${r.sla}</td>
+        <td><div class="toggle${r.active?' on':''}" data-act="toggle"><i></i></div></td></tr>`).join('')}
+    </tbody></table></div>
+    <button class="btn ghost" style="font-size:12px" data-act="toast" data-arg="New approval rule added">+ Add rule</button>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Approval rules saved">Save rules</button>
+    </div>`);
+}
+
+/* ── Post to GL ── */
+function openPostJournals(){
+  openDrawer('Post to General Ledger',`
+    <div class="confirm-panel">
+      <div class="confirm-title">⚠ Irreversible action</div>
+      <div class="confirm-body">This will post <b>847 journal entries</b> to NetSuite for the June 2026 period. Once posted, entries cannot be reversed without a manual correcting journal.</div>
+    </div>
+    <div class="card" style="margin:16px 0;padding:14px 16px">
+      <div class="inv-sum-row"><span>Revenue recognition entries</span><span class="tnum">412</span></div>
+      <div class="inv-sum-row"><span>Deferred revenue releases</span><span class="tnum">218</span></div>
+      <div class="inv-sum-row"><span>Accounts receivable</span><span class="tnum">187</span></div>
+      <div class="inv-sum-row"><span>Manual adjustments</span><span class="tnum">30</span></div>
+      <div class="inv-sum-row total"><span>Total journal entries</span><span class="tnum">847</span></div>
+    </div>
+    <div class="form-group"><label class="form-label">GL period</label>
+      <select class="form-select"><option>June 2026 (current)</option></select></div>
+    <div style="margin-top:12px;display:flex;align-items:flex-start;gap:8px">
+      <input type="checkbox" id="glConfirm" style="margin-top:3px;accent-color:var(--ember)">
+      <label for="glConfirm" style="font-size:12px;color:var(--text-2);cursor:pointer">I confirm that all reconciliations are complete and I am authorized to post to the general ledger for June 2026.</label>
+    </div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" style="background:var(--neg)" data-act="toast" data-arg="847 journal entries posted to NetSuite GL — June 2026 period locked">Post to GL</button>
+    </div>`);
+}
+
+/* ── Close Sign-off ── */
+function openSignOff(){
+  openDrawer('Sign Off — June 2026 Close',`
+    <div class="card" style="margin-bottom:16px;padding:14px 16px">
+      <div class="inv-sum-row"><span>Tasks complete</span><span class="tnum" style="color:var(--pos);font-weight:700">20 / 20</span></div>
+      <div class="inv-sum-row"><span>Controller sign-off</span><span>${pill('good','Approved')} <span class="mut" style="font-size:11px">Jun 27 · R. Chen</span></span></div>
+      <div class="inv-sum-row"><span>CFO sign-off</span><span>${pill('warn','Pending')}</span></div>
+      <div class="inv-sum-row"><span>Journals posted</span><span>${pill('good','847 entries')}</span></div>
+    </div>
+    <div class="form-section-title">Confirm the following before signing</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-size:13px;color:var(--text-2)">
+        <input type="checkbox" style="margin-top:2px;accent-color:var(--ember)">
+        All invoices for the period have been reviewed and approved</label>
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-size:13px;color:var(--text-2)">
+        <input type="checkbox" style="margin-top:2px;accent-color:var(--ember)">
+        Revenue recognition schedule has been validated against contracts</label>
+      <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-size:13px;color:var(--text-2)">
+        <input type="checkbox" style="margin-top:2px;accent-color:var(--ember)">
+        Bank reconciliation is complete and cash position is confirmed</label>
+    </div>
+    <div class="form-group"><label class="form-label">Your name (e-signature)</label>
+      <input class="form-input" placeholder="Type your full name to sign"></div>
+    <div class="form-group" style="margin-top:10px"><label class="form-label">Sign-off date</label>
+      <input class="form-input" type="date" value="2026-06-28"></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="June 2026 close signed off by CFO — period locked, audit trail recorded">Submit sign-off</button>
+    </div>`);
+}
+
+/* ── Report Builder ── */
+function openReportBuilder(){
+  openDrawer('Report Builder',`
+    <div class="form-section">
+      <div class="form-section-title">1 — Report type</div>
+      <div class="radio-group">
+        ${[['Revenue Analytics','MRR, ARR, churn, expansion — with charts'],
+           ['A/R Aging','Outstanding invoices by age bucket and customer'],
+           ['Subscription Cohorts','Retention and expansion by signup cohort'],
+           ['Cash Flow','Operating, investing, financing activities'],
+           ['Executive Summary','One-page KPI snapshot for board meetings']
+          ].map((r,i)=>`<label class="radio-opt${i===0?' selected':''}">
+          <input type="radio" name="rtype" ${i===0?'checked':''} style="accent-color:var(--ember)">
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">${r[0]}</div>
+               <div style="font-size:11px;color:var(--text-3);margin-top:1px">${r[1]}</div></div>
+        </label>`).join('')}
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">2 — Date range</div>
+      <div class="form-row"><div class="form-group"><label class="form-label">From</label>
+        <input class="form-input" type="date" value="2026-06-01"></div>
+        <div class="form-group"><label class="form-label">To</label>
+        <input class="form-input" type="date" value="2026-06-28"></div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${['MTD','QTD','YTD','Last month','Last quarter'].map(l=>`<button class="btn ghost" style="font-size:11px;padding:4px 8px" data-act="toast" data-arg="Date range set to ${l}">${l}</button>`).join('')}
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">3 — Output format</div>
+      <div class="radio-group" style="flex-direction:row;gap:8px">
+        ${['PDF','XLSX','CSV'].map((f,i)=>`<label class="radio-opt${i===0?' selected':''}" style="flex:1;justify-content:center">
+          <input type="radio" name="rfmt" ${i===0?'checked':''} style="accent-color:var(--ember)">${f}</label>`).join('')}
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn ghost" data-act="schedulereport">Schedule delivery</button>
+      <button class="btn primary" data-act="toast" data-arg="Report queued — download link ready in ~45s">Generate report</button>
+    </div>`);
+}
+
+/* ── Schedule Report ── */
+function openScheduleReport(){
+  openDrawer('Schedule Report Delivery',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Report</label>
+      <select class="form-select"><option>Revenue Analytics</option><option>A/R Aging</option><option>Executive Summary</option><option>Subscription Cohorts</option></select></div>
+      <div class="form-group"><label class="form-label">Format</label>
+      <select class="form-select"><option>PDF</option><option>XLSX</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Frequency</label>
+      <select class="form-select"><option>Weekly</option><option>Monthly</option><option>Quarterly</option></select></div>
+      <div class="form-group"><label class="form-label">Deliver on</label>
+      <select class="form-select"><option>1st of month</option><option>Last day of month</option><option>Monday</option><option>Friday</option></select></div></div>
+    <div class="form-group"><label class="form-label">Recipients</label>
+      <input class="form-input" placeholder="amir@delonix.com, cfo@delonix.com"></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Scheduled report saved — first delivery on Jul 1">Save schedule</button>
+    </div>`);
+}
+
+/* ── Invite User ── */
+function openInviteUser(){
+  openDrawer('Invite Team Member',`
+    <div class="form-group"><label class="form-label">Email address</label>
+      <input class="form-input" type="email" placeholder="colleague@company.com"></div>
+    <div class="form-row" style="margin-top:12px"><div class="form-group"><label class="form-label">Role</label>
+      <select class="form-select"><option>Admin</option><option>Revenue Manager</option><option>Collections</option><option>Sales Ops</option><option>Viewer (read-only)</option></select></div>
+      <div class="form-group"><label class="form-label">Team</label>
+      <select class="form-select"><option>Finance</option><option>Billing</option><option>Sales</option><option>Executive</option></select></div></div>
+    <div class="form-group" style="margin-top:10px"><label class="form-label">Personal message (optional)</label>
+      <textarea class="form-textarea" placeholder="Add a note to the invitation email…" style="min-height:56px"></textarea></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Invitation sent — they will receive an email to set up their account">Send invitation</button>
+    </div>`);
+}
+
+/* ── Price Book ── */
+function openPriceBook(){
+  const books=[
+    {name:'2026 Standard',desc:'Default list prices — all new accounts',accounts:189,active:true},
+    {name:'Volume Discount',desc:'>10 seats — 15% discount applied',accounts:42,active:false},
+    {name:'Enterprise Custom',desc:'Custom negotiated rates — requires approval',accounts:16,active:false},
+  ];
+  openDrawer('Price Book Management',`
+    ${books.map(b=>`<div class="entity-card${b.active?' active':''}">
+      <div style="flex:1">
+        <div class="entity-name">${b.name}${b.active?` ${pill('good','Default')}`:''}</div>
+        <div class="entity-meta">${b.desc} · ${b.accounts} accounts</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn ghost" style="font-size:11px;padding:4px 8px" data-act="toast" data-arg="Editing ${b.name} price book">Edit</button>
+        ${!b.active?`<button class="btn ghost" style="font-size:11px;padding:4px 8px" data-act="toast" data-arg="${b.name} set as default price book">Set default</button>`:''}
+      </div>
+    </div>`).join('')}
+    <div class="form-footer">
+      <button class="btn primary" data-act="toast" data-arg="New price book editor opened">+ New price book</button>
+    </div>`);
+}
+
+/* ── Tax Config ── */
+function openTaxConfig(){
+  const nexus=[['California','CA','9.5%'],['New York','NY','8.875%'],['Texas','TX','6.25%'],
+    ['Florida','FL','6%'],['Washington','WA','6.5%'],['Illinois','IL','6.25%'],
+    ['Canada (GST)','CA','5%'],['EU VAT','EU','20%']];
+  openDrawer('Tax Configuration',`
+    <div class="form-section-title">Tax provider</div>
+    <div class="radio-group" style="margin-bottom:16px">
+      <label class="radio-opt selected"><input type="radio" name="taxp" checked style="accent-color:var(--ember)">
+        <div><div style="font-size:13px;font-weight:600;color:var(--text)">Avalara</div><div style="font-size:11px;color:var(--pos)">Connected · auto-calculating</div></div></label>
+      <label class="radio-opt"><input type="radio" name="taxp" style="accent-color:var(--ember)">
+        <div><div style="font-size:13px;font-weight:600;color:var(--text)">TaxJar</div><div style="font-size:11px;color:var(--text-3)">Available — not connected</div></div></label>
+      <label class="radio-opt"><input type="radio" name="taxp" style="accent-color:var(--ember)">
+        <div><div style="font-size:13px;font-weight:600;color:var(--text)">Manual</div><div style="font-size:11px;color:var(--text-3)">Enter rates per jurisdiction</div></div></label>
+    </div>
+    <div class="form-section-title">Nexus jurisdictions</div>
+    <div class="table-wrap" style="border:none;margin-bottom:12px"><table><thead><tr>
+      <th>Jurisdiction</th><th>Code</th><th>Rate</th><th>Active</th></tr></thead><tbody>
+      ${nexus.map(j=>`<tr><td class="nm">${j[0]}</td><td class="mut">${j[1]}</td><td class="tnum">${j[2]}</td>
+        <td><div class="toggle on" data-act="toggle"><i></i></div></td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Tax configuration saved">Save configuration</button>
+    </div>`);
+}
+
+/* ── Revenue Recognition Rules ── */
+function openRevRules(){
+  openDrawer('Recognition Rules',`
+    <div class="form-section">
+      <div class="form-section-title">Recognition method</div>
+      <div class="radio-group" style="margin-bottom:16px">
+        <label class="radio-opt selected"><input type="radio" name="rmethod" checked style="accent-color:var(--ember)">
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">Ratable (straight-line)</div>
+               <div style="font-size:11px;color:var(--text-3)">Recognize evenly over the service period</div></div></label>
+        <label class="radio-opt"><input type="radio" name="rmethod" style="accent-color:var(--ember)">
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">Event-based</div>
+               <div style="font-size:11px;color:var(--text-3)">Recognize on specific milestone events</div></div></label>
+        <label class="radio-opt"><input type="radio" name="rmethod" style="accent-color:var(--ember)">
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">Manual</div>
+               <div style="font-size:11px;color:var(--text-3)">Override per contract</div></div></label>
+      </div>
+    </div>
+    <div class="form-section-title">Performance obligations</div>
+    ${[['Platform access','Ratable','Monthly'],['Implementation services','Event','On completion'],
+       ['Training & onboarding','Event','On delivery'],['Support (premium)','Ratable','Monthly'],
+       ['Professional services','Manual','Per SOW']
+      ].map(o=>`<div class="seq-step"><span class="seq-label" style="width:auto;flex:1">${o[0]}</span>
+        <span class="seq-channel">${o[1]}</span><span class="seq-channel" style="color:var(--ember-soft)">${o[2]}</span>
+        <button class="btn ghost" style="font-size:11px;padding:3px 8px" data-act="toast" data-arg="Editing ${o[0]} obligation">Edit</button>
+      </div>`).join('')}
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Recognition rules saved and applied to new contracts">Save rules</button>
+    </div>`);
+}
+
+/* ── Manual AR Match ── */
+function openManualMatch(ref){
+  openDrawer('Manual Cash Application',`
+    <div class="card" style="margin-bottom:16px;padding:14px 16px">
+      <div class="form-section-title">Unmatched payment</div>
+      <div class="inv-sum-row"><span>Reference</span><span class="tnum" style="font-weight:600">${ref||'PMT-REF-00847'}</span></div>
+      <div class="inv-sum-row"><span>Amount received</span><span class="tnum" style="color:var(--pos)">$4,200.00</span></div>
+      <div class="inv-sum-row"><span>Received on</span><span>Jun 26, 2026</span></div>
+      <div class="inv-sum-row"><span>Bank</span><span class="mut">TD Bank · Operating ····4821</span></div>
+    </div>
+    <div class="form-section-title">Match to invoice(s)</div>
+    <div class="table-wrap" style="border:none;margin-bottom:12px"><table><thead><tr>
+      <th><input type="checkbox" style="accent-color:var(--ember)"></th><th>Invoice</th><th>Customer</th><th>Amount</th><th>Age</th></tr></thead><tbody>
+      ${[['INV-2026-0821','Acme Corp','$4,200.00','7d'],['INV-2026-0798','Acme Corp','$4,200.00','37d'],
+         ['INV-2026-0831','Apex Systems','$5,800.00','14d'],['INV-2026-0819','CloudBase Inc','$7,200.00','9d']]
+        .map(r=>`<tr><td><input type="checkbox" style="accent-color:var(--ember)"></td>
+          <td class="nm">${r[0]}</td><td>${r[1]}</td><td class="tnum">${r[2]}</td><td class="mut">${r[3]}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="form-footer">
+      <button class="btn ghost" data-act="toast" data-arg="">Cancel</button>
+      <button class="btn primary" data-act="toast" data-arg="Payment matched to INV-2026-0821 — AR updated">Apply match</button>
+    </div>`);
+}
 
 </script>
 </body>
