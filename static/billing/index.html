@@ -3746,111 +3746,388 @@ VIEWS.integrations = (v)=>{
 VIEWS.bizunits = (v)=>{
   const buColor = b => b.color||'#888';
   const statusPill = s => s==='active'?pill('good','Active'):s==='migration'?pill('warn','Migration'):pill('muted',s);
+
+  /* GL mapping rows per BU */
+  const GL_ROWS = [
+    ['Subscription Revenue','4000 · SaaS Revenue','4000 · SaaS Revenue','4000 · SaaS Revenue','4000 · SaaS Revenue','N/A (legacy)'],
+    ['Overage / Usage Revenue','4010 · Usage Revenue','4010 · Usage Revenue','4010 · Usage Revenue','4010 · Usage Revenue','N/A'],
+    ['Deferred Revenue','2800 · Deferred Rev.','2800 · Deferred Rev.','2800 · Deferred Rev.','2800 · Deferred Rev.','N/A'],
+    ['Accounts Receivable','1200 · AR Trade','1200 · AR Trade','1200 · AR Trade','1250 · EU AR','1200 · AR Trade'],
+    ['Tax Payable','2100 · Sales Tax','2100 · Sales Tax','2100 · Sales Tax','2110 · EU VAT','2100 · Sales Tax'],
+    ['Revenue Contra','4090 · Discounts','4090 · Discounts','4090 · Discounts','4090 · Discounts','N/A'],
+  ];
+
+  /* Product availability matrix */
+  const PLANS = ['Enterprise Plus','Enterprise','Business+','Business','Starter'];
+  const PLAN_AVAIL = [
+    [true,true,true,true,false],   // BU-001 Residential
+    [true,true,true,true,true],    // BU-002 Commercial
+    [true,true,false,false,false], // BU-003 Enterprise Platform
+    [true,true,true,false,false],  // BU-004 International
+    [false,false,true,true,true],  // BU-005 PropTech (legacy plans only)
+  ];
+
   v.appendChild(el(`<div class="view">
     ${pageHead('Business Units','5 units · 4 legal entities · $418,350 MRR',
-      `<button class="btn ghost" data-act="route" data-arg="bizunits">${svg(I.entity,14)} Manage Entities</button><button class="btn primary" data-act="newbizunit">+ New Business Unit</button>`)}
+      `<button class="btn ghost" data-act="glmapping" data-arg="BU-001">${svg(I.settings,14)} GL Mappings</button><button class="btn primary" data-act="newbizunit">+ New Business Unit</button>`)}
+
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
       ${kpi('Active Business Units','4','1 in migration',{accent:true})}
       ${kpi('Legal Entities','4','3 currencies',{})}
       ${kpi('Total MRR','$418,350','across all BUs',{trend:5.2})}
       ${kpi('Active Subscriptions','689','in 4 BUs',{})}
     </div>
-    <div class="val-banner info" style="margin-bottom:14px">${svg(I.bu,15)} <strong>Business Unit</strong> controls invoice branding, legal entity, tax profile, GL export destination, and default invoice grouping. A customer may span multiple Business Units.</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Business Unit</th><th>Brand Name</th><th>Legal Entity</th><th>Currency</th><th>Tax Profile</th><th>GL Export</th><th class="num">MRR</th><th>Subs</th><th>Status</th><th></th></tr></thead>
-        <tbody>${BUS.map(b=>`<tr data-act="bizunit" data-arg="${b.id}" style="cursor:pointer">
-          <td><div style="display:flex;align-items:center;gap:8px"><span class="bu-dot" style="background:${buColor(b)};width:11px;height:11px"></span><strong style="font-size:13px">${b.name}</strong></div></td>
-          <td class="mut" style="font-size:12px">${b.brand}</td>
-          <td style="font-size:12.5px">${b.entity}</td>
-          <td class="mono mut">${b.currency}</td>
-          <td class="mut" style="font-size:12px">${b.taxProfile}</td>
-          <td class="mut" style="font-size:12px">${b.glDest}</td>
-          <td class="num tnum">${b.mrr?fmt(b.mrr):'—'}</td>
-          <td class="num tnum">${b.subs}</td>
-          <td>${statusPill(b.status)}</td>
-          <td class="mut">${svg('<polyline points="9 18 15 12 9 6"/>',14)}</td>
-        </tr>`).join('')}
-        </tbody>
-      </table>
+
+    <div class="val-banner info" style="margin-bottom:16px">${svg(I.bu,15)} <strong>Business Unit</strong> controls invoice branding, legal entity assignment, tax profile, GL export destination, product availability, and default invoice grouping. A single customer may span multiple Business Units.</div>
+
+    <!-- BU Table -->
+    <div class="card panel" style="margin-bottom:20px;padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)"><h3>All Business Units</h3></div>
+      <div class="table-wrap" style="margin:0">
+        <table>
+          <thead><tr>
+            <th>Business Unit</th><th>Brand Name</th><th>Legal Entity</th><th>Currency</th>
+            <th>Tax Profile</th><th>GL Export</th><th>Template</th>
+            <th class="num">MRR</th><th class="num">Subs</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody>${BUS.map(b=>`<tr data-act="bizunit" data-arg="${b.id}" style="cursor:pointer">
+            <td><div style="display:flex;align-items:center;gap:8px">
+              <span class="bu-dot" style="background:${buColor(b)};width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
+              <strong style="font-size:13px">${b.name}</strong>
+            </div></td>
+            <td class="mut" style="font-size:12px">${b.brand}</td>
+            <td style="font-size:12px">${b.entity}</td>
+            <td class="mono mut" style="font-size:12px">${b.currency}</td>
+            <td class="mut" style="font-size:11.5px">${b.taxProfile}</td>
+            <td class="mut" style="font-size:11.5px">${b.glDest}</td>
+            <td class="mut" style="font-size:11.5px">${b.template}</td>
+            <td class="num tnum">${b.mrr?fmt(b.mrr):'—'}</td>
+            <td class="num tnum">${b.subs}</td>
+            <td>${statusPill(b.status)}</td>
+            <td class="mut">${svg('<polyline points="9 18 15 12 9 6"/>',14)}</td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div style="margin-top:24px">
-      <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">Invoice Branding Conflicts</h3>
-      <div class="val-banner warn">${svg(I.warning,15)} <div><strong>BU-005 (PropTech/Acquired)</strong> still uses BuildStream invoice template. Finalized invoices may show legacy branding until migration is complete. <button class="btn ghost" style="margin-left:8px;padding:3px 8px;font-size:12px" data-act="migrationdetail" data-arg="SS-001">View migration status</button></div></div>
+
+    <!-- GL Mapping Overview -->
+    <div class="card panel" style="margin-bottom:20px;padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)">
+        <h3>GL Account Mappings — All Business Units</h3>
+        <button class="btn ghost" style="font-size:12px;padding:5px 10px" data-act="glmapping" data-arg="BU-001">Edit Mappings</button>
+      </div>
+      <div class="table-wrap" style="margin:0">
+        <table>
+          <thead><tr>
+            <th>Revenue Category</th>
+            ${BUS.map(b=>`<th><span class="bu-badge"><span class="bu-dot" style="background:${buColor(b)}"></span>${b.name}</span></th>`).join('')}
+          </tr></thead>
+          <tbody>${GL_ROWS.map(([cat,...accts])=>`<tr>
+            <td style="font-size:12.5px;font-weight:600">${cat}</td>
+            ${accts.map((a,i)=>`<td class="mono mut" style="font-size:11px;${a==='N/A'||a==='N/A (legacy)'?'color:var(--neg);opacity:.7':''}">${a}</td>`).join('')}
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div style="padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-2)">
+        ${svg(I.warning,13)} <span style="color:var(--warn)">BU-005 (PropTech)</span> has no active GL mappings — all charges route to manual review queue during migration.
+      </div>
+    </div>
+
+    <!-- Product Availability Matrix -->
+    <div class="card panel" style="margin-bottom:20px;padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)"><h3>Product Availability Matrix</h3><span class="mut" style="font-size:12px">Which plans are available to sell in each Business Unit</span></div>
+      <div class="table-wrap" style="margin:0">
+        <table>
+          <thead><tr>
+            <th>Plan</th>
+            ${BUS.map(b=>`<th style="text-align:center"><span class="bu-badge"><span class="bu-dot" style="background:${buColor(b)}"></span>${b.name}</span></th>`).join('')}
+          </tr></thead>
+          <tbody>${PLANS.map((p,pi)=>`<tr>
+            <td style="font-weight:600;font-size:13px">${p}</td>
+            ${PLAN_AVAIL.map((buPlans,bi)=>`<td style="text-align:center;font-size:16px">${buPlans[pi]?'<span style="color:var(--pos)">✓</span>':'<span style="color:var(--border-2)">—</span>'}</td>`).join('')}
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Conflicts & Warnings -->
+    <div class="card panel" style="padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)"><h3>Conflicts &amp; Warnings</h3></div>
+      <div style="padding:14px 18px;display:flex;flex-direction:column;gap:10px">
+        <div class="val-banner warn">${svg(I.warning,14)}
+          <div><strong>BU-005 (PropTech/Acquired)</strong> still uses BuildStream invoice template. 8 customers have finalized invoices with legacy branding.
+          <button class="btn ghost" style="margin-left:8px;padding:3px 8px;font-size:12px" data-act="migrationdetail" data-arg="SS-001">View migration status</button></div>
+        </div>
+        <div class="val-banner warn">${svg(I.warning,14)}
+          <div><strong>BU-003 (Enterprise Platform)</strong> and <strong>BU-004 (International)</strong> have different legal entities. Accounts with subscriptions in both BUs require explicit invoice grouping policy or invoices will be split.
+          <button class="btn ghost" style="margin-left:8px;padding:3px 8px;font-size:12px" data-act="invgrouping" data-arg="GP-001">Review policies</button></div>
+        </div>
+        <div class="val-banner info">${svg(I.check,14)} <div>BU-001 through BU-004 all have GL mappings and tax profiles configured. All active subscriptions will invoice normally at next billing cycle.</div></div>
+      </div>
     </div>
   </div>`));
 };
 
-/* ---------- Legal Entities ---------- */
+
 VIEWS.legalentity = (v)=>{
+  /* Tax registrations per entity */
+  const TAX_REGS = {
+    'LE-001': [
+      {jurisdiction:'US Federal',type:'EIN',id:'98-4821034',status:'Active'},
+      {jurisdiction:'California',type:'CA SUT',id:'CA-482-103412',status:'Active'},
+      {jurisdiction:'New York',type:'NY SUT',id:'NY-73841-9',status:'Active'},
+      {jurisdiction:'Texas',type:'TX SUT',id:'TX-1102948-4',status:'Active'},
+    ],
+    'LE-002': [
+      {jurisdiction:'US Federal',type:'EIN',id:'47-9012384',status:'Active'},
+      {jurisdiction:'Delaware',type:'DE Franchise',id:'DE-7284012',status:'Active'},
+    ],
+    'LE-003': [
+      {jurisdiction:'Netherlands',type:'VAT',id:'NL004821034B01',status:'Active'},
+      {jurisdiction:'EU OSS',type:'VAT OSS',id:'EU-OSS-NL-2024',status:'Active'},
+      {jurisdiction:'Germany',type:'DE VAT',id:'DE-482-104823',status:'Active'},
+    ],
+    'LE-004': [
+      {jurisdiction:'England & Wales',type:'VAT',id:'GB 482 1034 82',status:'Inactive (legacy)'},
+    ],
+  };
+  const GL_ACCTS = {
+    'LE-001': [['4000','SaaS Revenue'],['2800','Deferred Revenue'],['1200','Accounts Receivable'],['2100','Sales Tax Payable']],
+    'LE-002': [['4000','SaaS Revenue'],['2800','Deferred Revenue'],['1200','Accounts Receivable'],['2100','Sales Tax Payable']],
+    'LE-003': [['4000','SaaS Revenue EUR'],['2800','Deferred Revenue EUR'],['1250','EU AR Trade'],['2110','EU VAT Payable']],
+    'LE-004': [['Legacy','Mapped to BuildStream GL'],['—','Pending migration'],['—','—'],['—','—']],
+  };
   v.appendChild(el(`<div class="view">
-    ${pageHead('Legal Entities','4 entities · 2 currencies · 3 GL systems',
+    ${pageHead('Legal Entities','4 entities · 3 currencies · GL systems: NetSuite, Xero, QuickBooks',
       `<button class="btn ghost" data-act="download" data-arg="xlsx|Tax Registrations|4 entities">${svg(I.download,14)} Export</button><button class="btn primary" data-act="newlegalentity">+ New Legal Entity</button>`)}
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
       ${kpi('Legal Entities','4','2 active, 1 legacy, 1 migration',{accent:true})}
-      ${kpi('Currencies','3','USD, EUR + legacy',{})}
-      ${kpi('GL Systems','3','NetSuite, Xero, QB',{})}
+      ${kpi('Currencies','3','USD, EUR + legacy GBP',{})}
+      ${kpi('GL Systems','3','NetSuite · Xero · QB',{})}
       ${kpi('Tax Jurisdictions','8','across all entities',{})}
     </div>
-    <div class="val-banner warn" style="margin-bottom:16px">${svg(I.warning,15)} <strong>Invoices cannot mix charges from different legal entities without explicit grouping policy approval.</strong> Conflicting legal entity assignments on a single invoice will block finalization.</div>
-    ${LEGAL_ENTITIES.map(e=>`<div class="entity-card" data-act="legalentity" data-arg="${e.id}">
-      <div class="entity-card-head">
-        <span class="entity-country">${e.flag}</span>
-        <div style="flex:1"><div style="font-weight:700;font-size:14px">${e.name}</div><div class="mut" style="font-size:12px">${e.country} · Tax ID: ${e.taxId}${e.vatId&&e.vatId!=='—'?' · VAT: '+e.vatId:''}</div></div>
-        <div style="text-align:right"><div style="font-weight:600;font-size:13px">${e.currency}</div><div class="mut" style="font-size:11.5px">${e.glSystem}</div></div>
-        <span class="but" style="margin-left:12px;color:var(--text-3)">${svg('<polyline points="9 18 15 12 9 6"/>',14)}</span>
+    <div class="val-banner warn" style="margin-bottom:18px">${svg(I.warning,15)} <strong>Invoices cannot mix charges from different legal entities.</strong> Accounts with subscriptions across multiple legal entities will generate split invoices unless an explicit cross-entity grouping policy is approved by Finance.</div>
+    ${LEGAL_ENTITIES.map(e=>`<div class="card panel" style="margin-bottom:16px;padding:0;overflow:hidden">
+      <div class="panel-head" style="cursor:pointer;border-bottom:1px solid var(--border)" data-act="legalentity" data-arg="${e.id}">
+        <span style="font-size:22px;margin-right:2px">${e.flag}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px">${e.name}</div>
+          <div class="mut" style="font-size:12px">${e.country} · Tax ID: <span class="mono">${e.taxId}</span>${e.vatId&&e.vatId!=='—'?' · VAT: <span class="mono">'+e.vatId+'</span>':''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="text-align:right"><div style="font-weight:600;font-size:13px">${e.currency}</div><div class="mut" style="font-size:11.5px">${e.glSystem}</div></div>
+          ${e.status==='migration'?pill('warn','Migration'):e.status==='legacy'?pill('muted','Legacy'):pill('good','Active')}
+          <span class="mut">${svg('<polyline points="9 18 15 12 9 6"/>',14)}</span>
+        </div>
       </div>
-      <div style="display:flex;gap:20px;flex-wrap:wrap">
-        <div style="font-size:12px"><span class="mut">AR Account: </span><span class="mono">${e.arAcct}</span></div>
-        <div style="font-size:12px"><span class="mut">Deferred Revenue: </span><span class="mono">${e.deferredAcct}</span></div>
-        <div style="font-size:12px"><span class="mut">Active BUs: </span>${e.bUs.map(id=>{const b=BUS.find(x=>x.id===id);return b?`<span class="bu-badge" style="margin-right:4px"><span class="bu-dot" style="background:${b.color}"></span>${b.name}</span>`:'';}).join('')}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid var(--border)">
+        <div style="padding:12px 18px;border-right:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-bottom:8px">GL Accounts</div>
+          ${(GL_ACCTS[e.id]||[]).map(([code,name])=>`<div style="display:flex;gap:8px;font-size:12px;margin-bottom:4px"><span class="mono mut" style="min-width:60px">${code}</span><span>${name}</span></div>`).join('')}
+        </div>
+        <div style="padding:12px 18px;border-right:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-bottom:8px">Tax Registrations</div>
+          ${(TAX_REGS[e.id]||[]).map(r=>`<div style="font-size:12px;margin-bottom:4px;display:flex;gap:6px;align-items:center">
+            <span class="mono mut" style="font-size:11px;min-width:65px">${r.type}</span>
+            <span>${r.jurisdiction}</span>
+            ${r.status!=='Active'?'<span style="font-size:10.5px;color:var(--warn)">'+r.status+'</span>':''}
+          </div>`).join('')}
+        </div>
+        <div style="padding:12px 18px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-bottom:8px">Active Business Units</div>
+          ${e.bUs.map(id=>{const b=BUS.find(x=>x.id===id);return b?`<div class="bu-badge" style="margin-bottom:5px;display:inline-flex;cursor:pointer" data-act="bizunit" data-arg="${id}"><span class="bu-dot" style="background:${b.color}"></span>${b.name}</div> `:'';}).join('')}
+          ${e.bUs.length===0?'<div class="mut" style="font-size:12px">No active BUs</div>':''}
+          <div style="margin-top:8px">
+            <div style="font-size:12px"><span class="mut">AR Account: </span><span class="mono">${e.arAcct}</span></div>
+            <div style="font-size:12px;margin-top:3px"><span class="mut">Deferred Rev: </span><span class="mono">${e.deferredAcct}</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:10px 18px;display:flex;align-items:center;gap:10px">
+        <button class="btn ghost" style="font-size:12px;padding:5px 10px" data-act="legalentity" data-arg="${e.id}">View details</button>
+        <button class="btn ghost" style="font-size:12px;padding:5px 10px" data-act="glmapping" data-arg="BU-001">GL Mappings</button>
+        ${e.status==='migration'?'<button class="btn ghost" style="font-size:12px;padding:5px 10px" data-act="migrationdetail" data-arg="SS-001">Migration status</button>':''}
+        <span class="mut" style="font-size:11.5px;margin-left:auto">Remittance: ${e.remittance||e.name}</span>
       </div>
     </div>`).join('')}
+    <div class="card panel" style="padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)"><h3>Cross-Entity Boundary Rules</h3></div>
+      <div style="padding:14px 18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="padding:12px 14px;border:1px solid var(--border);border-radius:8px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-2);margin-bottom:6px">Currency Mismatch</div>
+          <div style="font-size:12.5px;color:var(--neg);font-weight:600">${svg(I.warning,13)} Blocked by default</div>
+          <div class="mut" style="font-size:11.5px;margin-top:4px">USD and EUR cannot appear on the same invoice. Invoices split automatically by legal entity.</div>
+        </div>
+        <div style="padding:12px 14px;border:1px solid var(--border);border-radius:8px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-2);margin-bottom:6px">Tax Profile Mismatch</div>
+          <div style="font-size:12.5px;color:var(--warn);font-weight:600">${svg(I.warning,13)} Warning + split</div>
+          <div class="mut" style="font-size:11.5px;margin-top:4px">US-Residential and EU-VAT cannot be mixed. Invoice splits with Finance warning.</div>
+        </div>
+        <div style="padding:12px 14px;border:1px solid var(--border);border-radius:8px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-2);margin-bottom:6px">GL Export Conflict</div>
+          <div style="font-size:12.5px;color:var(--warn);font-weight:600">${svg(I.warning,13)} Requires approval</div>
+          <div class="mut" style="font-size:11.5px;margin-top:4px">Cross-GL invoices (NetSuite + QuickBooks) require Finance approval before export batch proceeds.</div>
+        </div>
+      </div>
+    </div>
   </div>`));
 };
 
 /* ---------- Migration & Source Systems ---------- */
 VIEWS.migration = (v)=>{
   const recons = [
-    {metric:'Customer count',legacy:'312',current:'289',delta:'-23',note:'23 pending mapping',status:'warn'},
-    {metric:'Active subscriptions',legacy:'308',current:'289',delta:'-19',note:'19 remapped to BU-001',status:'ok'},
-    {metric:'Invoice total (legacy)',legacy:'$1,847,200',current:'$1,846,850',delta:'-$350',note:'Rounding & proration diff',status:'ok'},
-    {metric:'Revenue (May 2026)',legacy:'$142,800',current:'$143,100',delta:'+$300',note:'Tax recalculation applied',status:'ok'},
+    {metric:'Customer records',legacy:'312',current:'289',delta:'-23',note:'23 pending mapping',status:'warn'},
+    {metric:'Active subscriptions',legacy:'308',current:'289',delta:'-19',note:'19 remapped to BU-001/002',status:'ok'},
+    {metric:'Invoice total (May 2026)',legacy:'$1,847,200',current:'$1,846,850',delta:'-$350',note:'Rounding & proration diff',status:'ok'},
+    {metric:'Revenue recognized (May 2026)',legacy:'$142,800',current:'$143,100',delta:'+$300',note:'Tax recalculation applied',status:'ok'},
     {metric:'Open AR balance',legacy:'$24,200',current:'$23,850',delta:'-$350',note:'Void + re-bill corrections',status:'ok'},
-    {metric:'Failed usage events',legacy:'N/A',current:'23',delta:'23',note:'23 events need mapping',status:'warn'},
+    {metric:'Usage events ingested',legacy:'N/A',current:'47,214',delta:'47,214',note:'All BuildStream events imported',status:'ok'},
+    {metric:'Failed usage events',legacy:'N/A',current:'23',delta:'23',note:'23 events need source mapping',status:'warn'},
+    {metric:'Product SKU mappings',legacy:'14',current:'11',delta:'-3',note:'3 legacy SKUs unmapped',status:'warn'},
   ];
+
+  const unresolved = [
+    {legacyId:'BS-CUST-4821',name:'Riverfront Properties',product:'BuildStream Pro',issue:'No matching delonix account',severity:'crit'},
+    {legacyId:'BS-CUST-4798',name:'Harborview Mgmt',product:'BuildStream Enterprise',issue:'Product SKU not found in BU-001',severity:'warn'},
+    {legacyId:'BS-CUST-4791',name:'Meadow Creek HOA',product:'BuildStream Starter',issue:'Duplicate customer detected — may be alias',severity:'crit'},
+    {legacyId:'BS-CUST-4765',name:'Sunrise Capital Group',product:'BuildStream Pro',issue:'Multiple delonix accounts match',severity:'warn'},
+    {legacyId:'BS-CUST-4758',name:'Pacific Coast Properties',product:'BuildStream Enterprise',issue:'Missing invoice contact email',severity:'warn'},
+    {legacyId:'BS-CUST-4742',name:'Lakefront Estates LLC',product:'BuildStream Pro',issue:'Currency mismatch: GBP vs USD',severity:'crit'},
+  ];
+
+  const idMappings = [
+    {legacy:'BS-CUST-0001',current:'ACC-2024-0847',type:'Customer',status:'ok',confidence:'High',batch:'BATCH-MIG-001'},
+    {legacy:'BS-CUST-0002',current:'ACC-2024-0848',type:'Customer',status:'ok',confidence:'High',batch:'BATCH-MIG-001'},
+    {legacy:'BS-CUST-0003',current:'ACC-2024-0851',type:'Customer',status:'ok',confidence:'Medium',batch:'BATCH-MIG-001'},
+    {legacy:'BS-INV-10291',current:'INV-2026-0812',type:'Invoice',status:'ok',confidence:'High',batch:'BATCH-MIG-002'},
+    {legacy:'BS-INV-10290',current:'INV-2026-0811',type:'Invoice',status:'ok',confidence:'High',batch:'BATCH-MIG-002'},
+    {legacy:'BS-PROD-PRO',current:'PLN-ENTERPRISE',type:'Product',status:'ok',confidence:'High',batch:'BATCH-MIG-001'},
+    {legacy:'BS-PROD-ENT',current:'PLN-ENTERPRISE-PLUS',type:'Product',status:'ok',confidence:'Medium',batch:'BATCH-MIG-001'},
+    {legacy:'BS-PROD-STR',current:'—',type:'Product',status:'warn',confidence:'None',batch:'BATCH-MIG-001'},
+  ];
+
+  const batches = [
+    {id:'BATCH-MIG-003',desc:'Failed usage events + 3 unresolved customers',started:'Jun 28 · 08:00',status:'running',pct:45},
+    {id:'BATCH-MIG-002',desc:'Invoice history import — 1,847 invoices',started:'Jun 20 · 02:00',status:'complete',pct:100},
+    {id:'BATCH-MIG-001',desc:'Customer + subscription initial migration — 312 accounts',started:'Jun 10 · 02:00',status:'complete',pct:100},
+  ];
+
   v.appendChild(el(`<div class="view">
-    ${pageHead('Migration & Source Systems','BuildStream acquisition · 312 legacy customers',
-      `<button class="btn ghost" data-act="download" data-arg="xlsx|Migration Reconciliation Report|BuildStream">${svg(I.download,14)} Export Report</button>`)}
+    ${pageHead('Migration & Source Systems','BuildStream acquisition · 312 legacy customers · 3 source systems',
+      `<button class="btn ghost" data-act="download" data-arg="xlsx|Migration Reconciliation Report|BuildStream">${svg(I.download,14)} Export Report</button><button class="btn primary" data-act="migrationdetail" data-arg="bulk">Bulk Map</button>`)}
+
     <div class="grid kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
       ${kpi('Legacy Customers','312','from BuildStream acquisition',{accent:true})}
       ${kpi('Mapped','289','93% complete',{trend:6.1})}
       ${kpi('Unresolved','23','need manual mapping',{})}
-      ${kpi('Revenue Variance','-$350','invoice total diff',{})}
+      ${kpi('Revenue Variance','-$350','invoice total diff — within tolerance',{})}
     </div>
-    <div class="card panel" style="margin-bottom:16px">
-      <div class="panel-head"><h3>BuildStream Reconciliation — May 2026</h3><span class="mut" style="font-size:12px">Last run: Jun 28 · 02:00 AM</span></div>
-      <div style="padding:0 18px 18px">
-        <div class="recon-row" style="font-weight:700;color:var(--text-2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px">
-          <div>Metric</div><div>Legacy (BuildStream)</div><div>Current (delonix)</div><div>Delta</div>
-        </div>
-        ${recons.map(r=>`<div class="recon-row">
-          <div style="font-size:13px;font-weight:600">${r.metric}</div>
-          <div class="tnum" style="font-size:13px">${r.legacy}</div>
-          <div class="tnum" style="font-size:13px">${r.current}</div>
-          <div class="recon-delta ${r.status} tnum" style="font-size:13px;font-weight:600">${r.delta} <span class="mut" style="font-weight:400;font-size:11px">${r.note}</span></div>
+
+    <!-- Source Systems -->
+    <div class="card panel" style="margin-bottom:20px;padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)"><h3>Source Systems</h3></div>
+      <div class="table-wrap" style="margin:0">
+        <table>
+          <thead><tr><th>System</th><th>Type</th><th>Records</th><th>Last Sync</th><th>Coverage</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${SOURCE_SYSTEMS.map(s=>`<tr data-act="migrationdetail" data-arg="${s.id}" style="cursor:pointer">
+              <td style="font-weight:600;font-size:13px">${s.name}</td>
+              <td class="mut" style="font-size:12px">${s.type}</td>
+              <td class="tnum" style="font-size:12.5px">${s.records}</td>
+              <td class="mut tnum" style="font-size:11.5px">${s.lastSync}</td>
+              <td style="font-size:12px">${s.coverage}</td>
+              <td>${s.status==='active'?pill('good','Active'):s.status==='complete'?pill('ember','Complete'):pill('warn',s.status)}</td>
+              <td class="mut">${svg('<polyline points="9 18 15 12 9 6"/>',14)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Migration Batches -->
+    <div class="card panel" style="margin-bottom:20px;padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)"><h3>Migration Batches</h3></div>
+      <div style="padding:14px 18px;display:flex;flex-direction:column;gap:10px">
+        ${batches.map(b=>`<div style="padding:12px 16px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <span class="mono mut" style="font-size:12px">${b.id}</span>
+            <span style="font-size:13px;font-weight:600;flex:1">${b.desc}</span>
+            ${b.status==='complete'?pill('good','Complete'):b.status==='running'?pill('ember','Running'):pill('warn',b.status)}
+            <span class="mut" style="font-size:11.5px">${b.started}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:${b.pct}%;height:100%;background:${b.pct===100?'var(--pos)':'var(--ember)'}"></div>
+            </div>
+            <span class="mut" style="font-size:11.5px;font-variant-numeric:tabular-nums;min-width:35px">${b.pct}%</span>
+          </div>
         </div>`).join('')}
       </div>
     </div>
-    <div class="card panel">
-      <div class="panel-head"><h3>Unresolved Customers (23)</h3><button class="btn ghost" style="font-size:12px;padding:5px 10px" data-act="migrationdetail" data-arg="bulk">Bulk Map</button></div>
-      <div class="table-wrap" style="padding:0">
-        <table><thead><tr><th>Legacy ID</th><th>Legacy Name</th><th>Legacy Product</th><th>Issue</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr><td class="mono mut" style="font-size:11.5px">BS-CUST-4821</td><td>Riverfront Properties</td><td>BuildStream Pro</td><td style="color:var(--warn);font-size:12px">No matching delonix account</td><td><button class="btn ghost" style="padding:4px 9px;font-size:11px" data-act="migrationdetail" data-arg="BS-CUST-4821">Map</button></td></tr>
-          <tr><td class="mono mut" style="font-size:11.5px">BS-CUST-4798</td><td>Harborview Mgmt</td><td>BuildStream Enterprise</td><td style="color:var(--warn);font-size:12px">Product SKU not found</td><td><button class="btn ghost" style="padding:4px 9px;font-size:11px" data-act="migrationdetail" data-arg="BS-CUST-4798">Map</button></td></tr>
-          <tr><td class="mono mut" style="font-size:11.5px">BS-CUST-4791</td><td>Meadow Creek HOA</td><td>BuildStream Starter</td><td style="color:var(--neg);font-size:12px">Duplicate customer detected</td><td><button class="btn ghost" style="padding:4px 9px;font-size:11px" data-act="migrationdetail" data-arg="BS-CUST-4791">Resolve</button></td></tr>
-        </tbody>
+
+    <!-- Reconciliation -->
+    <div class="card panel" style="margin-bottom:20px;padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)">
+        <h3>BuildStream Reconciliation — May 2026</h3>
+        <span class="mut" style="font-size:12px">Last run: Jun 28 · 02:00 AM · auto-runs nightly</span>
+      </div>
+      <div style="padding:0 18px 18px">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:0;padding:8px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);border-bottom:1px solid var(--border)">
+          <div>Metric</div><div class="num">Legacy (BuildStream)</div><div class="num">Current (delonix)</div><div class="num">Delta</div>
+        </div>
+        ${recons.map(r=>`<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:0;padding:8px 0;border-bottom:1px solid var(--border);align-items:center">
+          <div style="font-size:13px;font-weight:600">${r.metric}</div>
+          <div class="num tnum" style="font-size:13px">${r.legacy}</div>
+          <div class="num tnum" style="font-size:13px">${r.current}</div>
+          <div class="num tnum" style="font-size:13px;font-weight:600;color:${r.status==='warn'?'var(--warn)':'var(--text)'}">
+            ${r.delta} <span class="mut" style="font-weight:400;font-size:11px">${r.note}</span>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Unresolved Customers -->
+    <div class="card panel" style="margin-bottom:20px;padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)">
+        <h3>Unresolved Customers (${unresolved.length})</h3>
+        <button class="btn ghost" style="font-size:12px;padding:5px 10px" data-act="migrationdetail" data-arg="bulk">Bulk Map</button>
+      </div>
+      <div class="table-wrap" style="margin:0">
+        <table>
+          <thead><tr><th>Legacy ID</th><th>Legacy Name</th><th>Legacy Product</th><th>Issue</th><th>Severity</th><th>Actions</th></tr></thead>
+          <tbody>${unresolved.map(u=>`<tr>
+            <td class="mono mut" style="font-size:11.5px">${u.legacyId}</td>
+            <td style="font-size:13px;font-weight:600">${u.name}</td>
+            <td class="mut" style="font-size:12px">${u.product}</td>
+            <td style="font-size:12px;color:${u.severity==='crit'?'var(--neg)':'var(--warn)'}">${u.issue}</td>
+            <td>${u.severity==='crit'?pill('crit','Critical'):pill('warn','Warning')}</td>
+            <td><button class="btn ghost" style="padding:4px 9px;font-size:11px" data-act="migrationdetail" data-arg="${u.legacyId}">${u.severity==='crit'?'Resolve':'Map'}</button></td>
+          </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Legacy ID Mapping Table -->
+    <div class="card panel" style="padding:0;overflow:hidden">
+      <div class="panel-head" style="border-bottom:1px solid var(--border)">
+        <h3>Legacy ID Mappings</h3>
+        <span class="mut" style="font-size:12px">${idMappings.filter(m=>m.status==='ok').length}/${idMappings.length} mapped · showing sample</span>
+        <button class="btn ghost" style="font-size:12px;padding:5px 10px;margin-left:8px" data-act="download" data-arg="csv|Legacy ID Mapping|full export">Export All</button>
+      </div>
+      <div class="table-wrap" style="margin:0">
+        <table>
+          <thead><tr><th>Legacy ID</th><th>Type</th><th>Maps To</th><th>Batch</th><th>Confidence</th><th>Status</th></tr></thead>
+          <tbody>${idMappings.map(m=>`<tr>
+            <td class="mono mut" style="font-size:11.5px">${m.legacy}</td>
+            <td class="mut" style="font-size:12px">${m.type}</td>
+            <td class="mono" style="font-size:11.5px;${m.current==='—'?'color:var(--neg)':''}">${m.current}</td>
+            <td class="mono mut" style="font-size:11px">${m.batch}</td>
+            <td style="font-size:12px;color:${m.confidence==='High'?'var(--pos)':m.confidence==='Medium'?'var(--text)':m.confidence==='None'?'var(--neg)':'var(--warn)'}">${m.confidence}</td>
+            <td>${m.status==='ok'?pill('good','Mapped'):pill('warn','Unmapped')}</td>
+          </tr>`).join('')}
+          </tbody>
         </table>
       </div>
     </div>
