@@ -4220,8 +4220,13 @@ VIEWS.settings = (v)=>{
 /* ============================================================
    Drawers (detail panels)
    ============================================================ */
-function openDrawer(html){
-  const d=document.getElementById('drawer'); d.innerHTML=html;
+function openDrawer(titleOrHtml, body){
+  const d=document.getElementById('drawer');
+  if(body !== undefined){
+    d.innerHTML = `<div class="drawer-head"><div style="font-size:18px;font-weight:650">${titleOrHtml}</div><button class="x" data-act="close">✕</button></div><div class="drawer-body">${body}</div>`;
+  } else {
+    d.innerHTML = titleOrHtml;
+  }
   d.classList.add('open'); document.getElementById('drawerBg').classList.add('open');
 }
 function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerBg').classList.remove('open'); }
